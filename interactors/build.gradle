@@ -1,26 +1,16 @@
-buildscript {
-    repositories {
-        maven { url 'https://maven.fabric.io/public' }
-    }
-
-    dependencies {
-        classpath 'io.fabric.tools:gradle:1.25.1'
-    }
-}
-
 plugins {
     id "com.jfrog.bintray" version "1.7.3"
     id "fr.coppernic.versioning" version "3.1.2"
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'io.fabric'
 apply plugin: 'checkstyle'
 
 repositories {
     google()
     jcenter()
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'https://artifactory.coppernic.fr/artifactory/libs-release' }
 }
 
 task checkstyle(type: Checkstyle) {
@@ -68,11 +58,27 @@ android {
 
 }
 
+String support = "27.1.1"
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation "com.android.support:appcompat-v7:$support"
     implementation 'com.jakewharton.timber:timber:4.7.0'
+    implementation 'fr.bipi.treessence:treessence:0.1.1'
+
+    // Coppernic
+    implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.16.0@aar'
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.6.1'
+    implementation 'fr.coppernic.sdk.barcode:CpcBarcode:3.2.0@aar'
+
+    // RxJava
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+    // Dagger
+    implementation 'com.google.dagger:dagger:2.13'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.13'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.13.0'
@@ -82,6 +88,18 @@ dependencies {
 
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'org.awaitility:awaitility:3.0.0'
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == 'com.android.support') {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion support
+            }
+        }
+    }
 }
 
 apply from: rootProject.file('gradle/gradle-publish.gradle')
