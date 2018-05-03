@@ -110,11 +110,13 @@ publishing {
 bintray {
     user = project.hasProperty("bintray_user")?project.bintray_user:""
     key = project.hasProperty("bintray_key")?project.bintray_key:""
+    publish = true
     pkg {
-        repo = "maven"
+        repo = BINTRAY_REPO
         name = rootProject.name
+        userOrg = BINTRAY_ORG
         licenses = ["Apache-2.0"]
-        labels = ['Interactors', 'Android', 'Coppernic']
+        labels = BINTRAY_LABELS.split(',')
         vcsUrl = POM_SCM_URL
         websiteUrl = POM_URL
         issueTrackerUrl = POM_ISSUES_URL
