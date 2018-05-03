@@ -53,7 +53,7 @@ public class BarcodeInteractorAndroidTest extends TestBase {
                     unblock();
                 }
             })
-            .subscribe(observer);
+            .subscribe();
 
         Timber.d("trig");
         interactor.trig();
@@ -84,6 +84,36 @@ public class BarcodeInteractorAndroidTest extends TestBase {
             })
             // subscribe again in case of error
             .retry(nbRetry)
+            .subscribe(observer);
+
+        for (int i = 0; i < nbRetry; i++) {
+            Timber.d("trig");
+            interactor.trig();
+            block(5, TimeUnit.SECONDS);
+        }
+
+        Timber.d("assert");
+        observer.assertNoErrors();
+        observer.dispose();
+    }
+
+    @Test
+    public void retryWhenTimeout() {
+        int nbRetry = 3;
+
+        TestObserver<String> observer = new TestObserver<>();
+        Timber.d("listen");
+        interactor.listen()
+            // Catch error before retry
+            .doOnEach(new Consumer<Notification<String>>() {
+                @Override
+                public void accept(Notification<String> stringNotification) throws Exception {
+                    L.mt(TAG, DEBUG, stringNotification.toString());
+                    unblockIn(1, TimeUnit.SECONDS);
+                }
+            })
+            // subscribe again in case of error
+            .retry(new TimeoutRetryPredicate())
             .subscribe(observer);
 
         for (int i = 0; i < nbRetry; i++) {
