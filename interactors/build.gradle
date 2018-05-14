@@ -1,3 +1,16 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenLocal()
+    }
+    dependencies {
+        //classpath "fr.coppernic.gradle.plugin:copper:dev"
+        classpath "gradle.plugin.coppernic:android-config:0.1.5"
+    }
+}
+
 plugins {
     id "com.jfrog.bintray" version "1.7.3"
     id "fr.coppernic.versioning" version "3.1.2"
@@ -5,6 +18,50 @@ plugins {
 
 apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
+apply plugin: 'fr.coppernic.extensions'
+
+
+def pomConfig = {
+    licenses {
+        license {
+            name POM_LICENCE_NAME
+            url POM_LICENCE_URL
+            distribution POM_LICENCE_DIST
+        }
+    }
+    developers {
+        developer {
+            id POM_DEVELOPER_ID
+            name POM_DEVELOPER_NAME
+        }
+    }
+    scm {
+        url POM_SCM_URL
+        connection POM_SCM_CONNECTION
+    }
+}
+
+copper {
+    android {
+        projectGroup = GROUP
+    }
+    publications {
+        skipForVariant = { variant ->
+            if(variant.buildType.name == "debug"){
+                return true
+            }
+            return false
+        }
+        publicationHook = {
+            it.pom.withXml {
+                def root = asNode()
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+apply plugin: 'fr.coppernic.android'
 
 repositories {
     google()
@@ -12,6 +69,7 @@ repositories {
     maven { url 'https://maven.fabric.io/public' }
     maven { url 'https://artifactory.coppernic.fr/artifactory/libs-release' }
 }
+
 
 task checkstyle(type: Checkstyle) {
     configFile rootProject.file('config/checkstyle.xml')
@@ -96,5 +154,36 @@ configurations.all {
         }
     }
 }
+String v = "$project.versioning.info.display"
+String t = "$project.versioning.info.tag"
 
-apply from: rootProject.file('gradle/gradle-publish.gradle')
+bintray {
+    user = project.hasProperty("bintray_user")?project.bintray_user:""
+    key = project.hasProperty("bintray_key")?project.bintray_key:""
+    publish = true
+    pkg {
+        repo = BINTRAY_REPO
+        name = rootProject.name
+        userOrg = BINTRAY_ORG
+        licenses = ["Apache-2.0"]
+        labels = BINTRAY_LABELS.split(',')
+        vcsUrl = POM_SCM_URL
+        websiteUrl = POM_URL
+        issueTrackerUrl = POM_ISSUES_URL
+        githubRepo = GITHUB_REPO //Optional Github repository
+        githubReleaseNotesFile = GITHUB_README //Optional Github readme file
+        version {
+            name = v
+            desc = POM_DESCRIPTION
+            released = new Date()
+            vcsTag = t
+        }
+    }
+}
+
+// Add publications to bintray
+afterEvaluate {
+    bintray.publications = project.publishing.publications.collect {
+        it.name
+    }
+}
