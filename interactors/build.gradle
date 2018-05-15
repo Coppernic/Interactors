@@ -17,6 +17,9 @@ plugins {
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'checkstyle'
 apply plugin: 'fr.coppernic.extensions'
 
@@ -120,12 +123,14 @@ String support = "27.1.1"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
     implementation "com.android.support:appcompat-v7:$support"
     implementation 'com.jakewharton.timber:timber:4.7.0'
 
     // Coppernic
     implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.16.0@aar'
+    compileOnly 'com.caen.RFIDLibrary:CaenRfidLibrary:3.0.0'
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.1.1'
@@ -138,10 +143,12 @@ dependencies {
     testImplementation "org.robolectric:robolectric:3.5"
     testImplementation "org.awaitility:awaitility:3.0.0"
     testImplementation "org.hamcrest:java-hamcrest:2.0.0.0"
+    testImplementation 'com.caen.RFIDLibrary:CaenRfidLibrary:3.0.0'
 
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'org.awaitility:awaitility:3.0.0'
+    androidTestImplementation 'com.caen.RFIDLibrary:CaenRfidLibrary:3.0.0'
 }
 
 configurations.all {
