@@ -12,6 +12,8 @@ import fr.coppernic.lib.interactors.BuildConfig;
 import fr.coppernic.lib.interactors.TestBase;
 import fr.coppernic.sdk.utils.debug.L;
 import io.reactivex.Notification;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observers.TestObserver;
 import timber.log.Timber;
@@ -40,32 +42,7 @@ public class BarcodeInteractorAndroidTest extends TestBase {
         observer.assertValueCount(0);
     }
 
-    @Test(timeout = 15000)
-    public void listen() {
-        TestObserver<String> observer = new TestObserver<>();
-
-        Timber.d("listen");
-        interactor.listen()
-            .doOnEach(new Consumer<Notification<String>>() {
-                @Override
-                public void accept(Notification<String> stringNotification) throws Exception {
-                    L.mt(TAG, DEBUG, stringNotification.toString());
-                    unblock();
-                }
-            })
-            .subscribe();
-
-        Timber.d("trig");
-        interactor.trig();
-
-        block();
-
-        Timber.d("assert");
-        observer.assertValueCount(1);
-        observer.assertNoErrors();
-
-        observer.dispose();
-    }
+    private Disposable disposable;
 
     @Test
     public void retry() {
@@ -126,6 +103,78 @@ public class BarcodeInteractorAndroidTest extends TestBase {
         observer.assertNoErrors();
         observer.dispose();
     }
+    private final Observer<String> disposeObserver = new Observer<String>() {
+        @Override
+        public void onSubscribe(Disposable d) {
+            L.mt(TAG, DEBUG, d.toString());
+            disposable = d;
+            unblockIn(300, TimeUnit.MILLISECONDS);
+        }
 
+        @Override
+        public void onNext(String s) {
+            L.m(TAG, DEBUG, s);
+            unblockIn(50, TimeUnit.MILLISECONDS);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            L.m(TAG, DEBUG, e.toString());
+        }
+
+        @Override
+        public void onComplete() {
+            L.m(TAG, DEBUG);
+        }
+    };
+
+    // Scan a barcode to make this test succeed
+    @Test(timeout = 15000)
+    public void listen() {
+        TestObserver<String> observer = new TestObserver<>();
+
+        Timber.d("listen");
+        interactor.listen()
+            .doOnEach(new Consumer<Notification<String>>() {
+                @Override
+                public void accept(Notification<String> stringNotification) throws Exception {
+                    L.mt(TAG, DEBUG, stringNotification.toString());
+                    unblock();
+                }
+            })
+            .subscribe(observer);
+
+        Timber.d("trig");
+        interactor.trig();
+
+        block();
+
+        Timber.d("assert");
+        observer.assertValueCount(1);
+        observer.assertNoErrors();
+
+        observer.dispose();
+    }
+
+    @Test
+    public void dispose() {
+        Timber.d("listen");
+        interactor.listen().subscribe(disposeObserver);
+        block();
+        if (disposable != null) {
+            disposable.dispose();
+        }
+
+        interactor.listen().subscribe(disposeObserver);
+        block();
+
+        Timber.d("trig");
+        interactor.trig();
+        block(5, TimeUnit.SECONDS);
+
+        if (disposable != null) {
+            disposable.dispose();
+        }
+    }
 
 }

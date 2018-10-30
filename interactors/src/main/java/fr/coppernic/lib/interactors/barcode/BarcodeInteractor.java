@@ -15,6 +15,7 @@ import fr.coppernic.lib.interactors.ReaderInteractor;
 import fr.coppernic.sdk.utils.core.CpcDefinitions;
 import fr.coppernic.sdk.utils.core.CpcResult;
 import fr.coppernic.sdk.utils.core.CpcResult.RESULT;
+import fr.coppernic.sdk.utils.debug.L;
 import fr.coppernic.sdk.utils.helpers.CpcOs;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -22,8 +23,11 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
+import static fr.coppernic.lib.interactors.BuildConfig.DEBUG;
+
 public class BarcodeInteractor implements ReaderInteractor<String> {
 
+    private static final String TAG = "BarcodeInteractor";
     private final Context context;
     private ObservableEmitter<String> emitter;
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -85,6 +89,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     }
 
     private void setEmitter(ObservableEmitter<String> e) {
+        L.mt(TAG, DEBUG, e.toString());
         // End previous observer and start new one
         if (emitter != null && !emitter.isDisposed()) {
             emitter.onComplete();
@@ -95,6 +100,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
 
             @Override
             public void dispose() {
+                L.mt(TAG, DEBUG);
                 unregisterReceiver();
                 disposed.set(true);
             }
@@ -116,8 +122,8 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     private void unregisterReceiver() {
         try {
             context.unregisterReceiver(receiver);
-        } catch (Exception ignore) {
-            Timber.v(ignore.toString());
+        } catch (Exception e) {
+            Timber.v(e.toString());
         }
     }
 
