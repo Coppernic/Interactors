@@ -43,11 +43,13 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
             registerReceiver();
         }
     };
+    private String servicePackage;
 
     @SuppressWarnings("WeakerAccess")
     @Inject
     public BarcodeInteractor(Context context) {
         this.context = context;
+        this.servicePackage = CpcOs.getSystemServicePackage(context);
     }
 
     /**
@@ -62,12 +64,18 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     @Override
     public void trig() {
         Intent scanIntent = new Intent();
-        scanIntent.setPackage(CpcOs.getSystemServicePackage(context));
+        scanIntent.setPackage(servicePackage);
         scanIntent.setAction(CpcDefinitions.INTENT_ACTION_SCAN);
         scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.getPackageName());
         ComponentName info = context.startService(scanIntent);
         if (info == null) {
-            handleError(new CpcResult.ResultException(RESULT.SERVICE_NOT_FOUND));
+            // Try again with second service
+            servicePackage = CpcOs.getSystemServicePackage(context, "fr.coppernic.features.barcode");
+            scanIntent.setPackage(servicePackage);
+            info = context.startService(scanIntent);
+            if (info == null) {
+                handleError(new CpcResult.ResultException(RESULT.SERVICE_NOT_FOUND));
+            }
         }
     }
 
