@@ -126,12 +126,14 @@ dependencies {
 
     // Coppernic
     implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.18.1'
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.8.5'
+    implementation 'fr.coppernic.external.elyctismrz:elyctismrz:1.0'
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
 
     // Dagger
-    compileOnly 'com.google.dagger:dagger:2.13'
+    compileOnly 'com.google.dagger:dagger:2.16'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.23.0'
