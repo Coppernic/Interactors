@@ -121,5 +121,4 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
             emitter?.onError(t)
         }
     }
-
 }
