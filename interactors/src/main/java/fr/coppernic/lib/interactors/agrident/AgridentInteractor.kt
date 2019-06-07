@@ -47,20 +47,21 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
         Timber.d(e.toString())
         // End previous observer and start new one
         emitter?.onComplete()
-        emitter = e
-        emitter?.setDisposable(object : Disposable {
-            private val disposed = AtomicBoolean(false)
+        emitter = e.apply {
+            setDisposable(object : Disposable {
+                private val disposed = AtomicBoolean(false)
 
-            override fun dispose() {
-                Timber.d("unregister")
-                unregisterReceiver()
-                disposed.set(true)
-            }
+                override fun dispose() {
+                    Timber.d("unregister")
+                    unregisterReceiver()
+                    disposed.set(true)
+                }
 
-            override fun isDisposed(): Boolean {
-                return disposed.get()
-            }
-        })
+                override fun isDisposed(): Boolean {
+                    return disposed.get()
+                }
+            })
+        }
     }
 
     private fun registerReceiver() {
@@ -86,9 +87,11 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
             return
         }
 
-        if (emitter == null || emitter!!.isDisposed) {
+        val localEmitter = if (emitter == null) {
             unregisterReceiver()
             return
+        } else {
+            emitter!!
         }
 
         if (action == CpcDefinitions.ACTION_AGRIDENT_SUCCESS) {
@@ -98,11 +101,11 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
                 return
             }
             val data = extras.getString(CpcDefinitions.KEY_BARCODE_DATA, "")
-            emitter!!.onNext(data)
+            localEmitter.onNext(data)
         } else if (intent.action == CpcDefinitions.ACTION_AGRIDENT_ERROR) {
             val res = intent.getIntExtra(CpcDefinitions.KEY_RESULT, CpcResult.RESULT.ERROR.ordinal)
             val result = CpcResult.RESULT.values()[res]
-            emitter!!.onError(result.toException())
+            localEmitter.onError(result.toException())
         }
     }
 
