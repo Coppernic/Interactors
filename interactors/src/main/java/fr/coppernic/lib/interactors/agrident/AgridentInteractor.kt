@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.support.v4.content.ContextCompat.startActivity
 import fr.coppernic.lib.interactors.ReaderInteractor
 import fr.coppernic.sdk.utils.core.CpcDefinitions
 import fr.coppernic.sdk.utils.core.CpcResult
@@ -17,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 const val AGRIDENT_WEDGE = "fr.coppernic.tools.cpcagridentwedge"
+const val ACTION_READ = "fr.coppernic.tools.agrident.wedge.READ"
 
 class AgridentInteractor @Inject constructor(private val context: Context) : ReaderInteractor<String> {
 
@@ -26,6 +26,7 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
             processIntent(intent)
         }
     }
+
     private val observableOnSubscribe = ObservableOnSubscribe<String> { e ->
         setEmitter(e)
         registerReceiver()
@@ -33,9 +34,13 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
 
     override fun trig() {
         // Starts Agrident wedge
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(AGRIDENT_WEDGE)
-        if (launchIntent != null) {
-            startActivity(context, launchIntent, null)
+        val scanIntent = Intent()
+        scanIntent.setPackage(AGRIDENT_WEDGE)
+        scanIntent.action = ACTION_READ
+        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.packageName)
+        val info = context.startService(scanIntent)
+        if (info == null) {
+            handleError(CpcResult.ResultException(CpcResult.RESULT.SERVICE_NOT_FOUND))
         }
     }
 
@@ -46,7 +51,9 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
     private fun setEmitter(e: ObservableEmitter<String>) {
         Timber.d(e.toString())
         // End previous observer and start new one
-        emitter?.onComplete()
+        if (emitter != null && !emitter!!.isDisposed) {
+            emitter?.onComplete()
+        }
         emitter = e.apply {
             setDisposable(object : Disposable {
                 private val disposed = AtomicBoolean(false)
@@ -77,7 +84,6 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
         } catch (e: Exception) {
             Timber.v(e.toString())
         }
-
     }
 
     private fun processIntent(intent: Intent) {
@@ -109,5 +115,11 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
         }
     }
 
+    private fun handleError(t: Throwable) {
+        unregisterReceiver()
+        if (emitter != null && !emitter!!.isDisposed) {
+            emitter?.onError(t)
+        }
+    }
 
 }
