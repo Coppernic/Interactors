@@ -17,6 +17,8 @@ import javax.inject.Inject
 
 const val AGRIDENT_WEDGE = "fr.coppernic.tools.cpcagridentwedge"
 const val ACTION_READ = "fr.coppernic.tools.agrident.wedge.READ"
+const val AGRIDENT_STOP_SERVICE = "fr.coppernic.intent.action.stop.agrident.service"
+const val AGRIDENT_START_SERVICE = "fr.coppernic.intent.action.start.agrident.service"
 
 class AgridentInteractor @Inject constructor(private val context: Context) : ReaderInteractor<String> {
 
@@ -113,6 +115,22 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
             val result = CpcResult.RESULT.values()[res]
             localEmitter.onError(result.toException())
         }
+    }
+
+    override fun startService() {
+        val scanIntent = Intent()
+        scanIntent.setPackage(AGRIDENT_WEDGE)
+        scanIntent.action = AGRIDENT_START_SERVICE
+        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.packageName)
+        context.startService(scanIntent)
+    }
+
+    override fun stopService() {
+        val scanIntent = Intent()
+        scanIntent.setPackage(AGRIDENT_WEDGE)
+        scanIntent.action = AGRIDENT_STOP_SERVICE
+        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.packageName)
+        context.startService(scanIntent)
     }
 
     private fun handleError(t: Throwable) {

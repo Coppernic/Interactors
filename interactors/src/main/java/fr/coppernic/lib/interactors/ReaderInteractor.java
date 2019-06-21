@@ -28,4 +28,14 @@ public interface ReaderInteractor<T> {
      * @return An {@link Observable} providing data
      */
     Observable<T> listen();
+
+    /**
+     * Stop service for barcode and Agrident
+     */
+    void stopService();
+
+    /**
+     * Start service for barcode and Agrident
+     */
+    void startService();
 }
