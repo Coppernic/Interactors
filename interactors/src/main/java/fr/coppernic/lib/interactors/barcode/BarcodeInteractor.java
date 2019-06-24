@@ -81,7 +81,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
 
     /**
      * Listen to barcode event.
-     * <p>It is registering to intents sent by barcode service. To stop listening, you may want to call
+     * <p>It is registering to intents sent by barcode service. To stopService listening, you may want to call
      * {@link Disposable#dispose()} method to unregister the internal {@link BroadcastReceiver}
      * <p>You may also want to link this observable to {@link Observable#retry()} in case of {@link RESULT#TIMEOUT}
      * or {@link RESULT#CANCELLED} are sent. You can retrieve error code from a
@@ -94,6 +94,36 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     @Override
     public Observable<String> listen() {
         return Observable.create(observableOnSubscribe);
+    }
+
+    @Override
+    public void stopService() {
+        Intent scanIntent = new Intent();
+        scanIntent.setPackage(servicePackage);
+        scanIntent.setAction(CpcDefinitions.INTENT_ACTION_STOP_BARCODE_SERVICE);
+        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.getPackageName());
+        ComponentName info = context.startService(scanIntent);
+        if (info == null) {
+            // Try again with second service
+            servicePackage = CpcOs.getSystemServicePackage(context, "fr.coppernic.features.barcode");
+            scanIntent.setPackage(servicePackage);
+            context.startService(scanIntent);
+        }
+    }
+
+    @Override
+    public void startService() {
+        Intent scanIntent = new Intent();
+        scanIntent.setPackage(servicePackage);
+        scanIntent.setAction(CpcDefinitions.INTENT_ACTION_START_BARCODE_SERVICE);
+        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.getPackageName());
+        ComponentName info = context.startService(scanIntent);
+        if (info == null) {
+            // Try again with second service
+            servicePackage = CpcOs.getSystemServicePackage(context, "fr.coppernic.features.barcode");
+            scanIntent.setPackage(servicePackage);
+            context.startService(scanIntent);
+        }
     }
 
     private void setEmitter(ObservableEmitter<String> e) {

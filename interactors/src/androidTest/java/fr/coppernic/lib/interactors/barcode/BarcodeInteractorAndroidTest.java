@@ -1,5 +1,6 @@
 package fr.coppernic.lib.interactors.barcode;
 
+import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 
 import org.junit.After;
@@ -175,6 +176,13 @@ public class BarcodeInteractorAndroidTest extends TestBase {
         if (disposable != null) {
             disposable.dispose();
         }
+    }
+
+    @Test
+    public void stopStartService(){
+        interactor.stopService();
+        SystemClock.sleep(2000);
+        interactor.startService();
     }
 
 }
