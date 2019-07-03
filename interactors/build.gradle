@@ -118,8 +118,6 @@ dependencies {
 
     // Coppernic
     implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.18.1'
-    implementation 'fr.coppernic.sdk.core:CpcCore:1.8.9'
-    implementation 'fr.coppernic.external.elyctismrz:elyctismrz:1.0'
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.7'
