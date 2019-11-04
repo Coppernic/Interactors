@@ -2,7 +2,7 @@ package fr.coppernic.lib.interactors.agrident
 
 import android.content.Context
 import android.os.SystemClock
-import android.support.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
 import fr.coppernic.lib.interactors.TestBase
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
@@ -21,7 +21,7 @@ class AgridentInteractorAndroidTest : TestBase() {
 
     @Before
     fun setUp() {
-        context = InstrumentationRegistry.getTargetContext();
+        context = ApplicationProvider.getApplicationContext()
         interactor = AgridentInteractor(context)
         Timber.plant(Timber.DebugTree())
     }
@@ -54,14 +54,14 @@ class AgridentInteractorAndroidTest : TestBase() {
     }
 
     @Test
-    fun continuousRead(){
+    fun continuousRead() {
         val observer = TestObserver<String>()
         Timber.d("listen")
         interactor.listen()
                 .doOnEach {
-                    if(it.isOnNext){
+                    if (it.isOnNext) {
                         Timber.d("Tag found ${it.value}")
-                    } else if(it.isOnError){
+                    } else if (it.isOnError) {
                         Timber.d(it.error)
                     }
                     interactor.trig()
@@ -136,7 +136,7 @@ class AgridentInteractorAndroidTest : TestBase() {
 
         Timber.d("trig")
         interactor.trig()
-       // block(5, TimeUnit.SECONDS)
+        // block(5, TimeUnit.SECONDS)
         Timber.d("stopService")
         interactor.stopService()
         disposable?.dispose()

@@ -1,7 +1,6 @@
 package fr.coppernic.lib.interactors.barcode;
 
 import android.os.SystemClock;
-import android.support.test.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -9,9 +8,10 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
+import androidx.test.core.app.ApplicationProvider;
 import fr.coppernic.lib.interactors.BuildConfig;
 import fr.coppernic.lib.interactors.TestBase;
-import fr.coppernic.lib.interactors.common.TimeoutRetryPredicate;
+import fr.coppernic.lib.interactors.common.rx.TimeoutRetryPredicate;
 import fr.coppernic.sdk.utils.debug.L;
 import io.reactivex.Notification;
 import io.reactivex.Observer;
@@ -25,16 +25,41 @@ public class BarcodeInteractorAndroidTest extends TestBase {
     private static final String TAG = "BarcodeInteractorTest";
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private BarcodeInteractor interactor;
+    private Disposable disposable;
+    private final Observer<String> disposeObserver = new Observer<String>() {
+        @Override
+        public void onSubscribe(Disposable d) {
+            L.mt(TAG, DEBUG, d.toString());
+            disposable = d;
+            unblockIn(300, TimeUnit.MILLISECONDS);
+        }
+
+        @Override
+        public void onNext(String s) {
+            L.m(TAG, DEBUG, s);
+            unblockIn(50, TimeUnit.MILLISECONDS);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            L.m(TAG, DEBUG, e.toString());
+        }
+
+        @Override
+        public void onComplete() {
+            L.m(TAG, DEBUG);
+        }
+    };
 
     @Before
-    public void setUp() throws Exception {
-        interactor = new BarcodeInteractor(InstrumentationRegistry.getTargetContext());
+    public void setUp() {
+        interactor = new BarcodeInteractor(ApplicationProvider.getApplicationContext());
 
         Timber.plant(new Timber.DebugTree());
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     @Test
@@ -43,8 +68,6 @@ public class BarcodeInteractorAndroidTest extends TestBase {
 
         observer.assertValueCount(0);
     }
-
-    private Disposable disposable;
 
     @Test
     public void retry() {
@@ -56,7 +79,7 @@ public class BarcodeInteractorAndroidTest extends TestBase {
             // Catch error before retry
             .doOnEach(new Consumer<Notification<String>>() {
                 @Override
-                public void accept(Notification<String> stringNotification) throws Exception {
+                public void accept(Notification<String> stringNotification) {
                     L.mt(TAG, DEBUG, stringNotification.toString());
                     unblockIn(1, TimeUnit.SECONDS);
                 }
@@ -86,7 +109,7 @@ public class BarcodeInteractorAndroidTest extends TestBase {
             // Catch error before retry
             .doOnEach(new Consumer<Notification<String>>() {
                 @Override
-                public void accept(Notification<String> stringNotification) throws Exception {
+                public void accept(Notification<String> stringNotification) {
                     L.mt(TAG, DEBUG, stringNotification.toString());
                     unblockIn(1, TimeUnit.SECONDS);
                 }
@@ -105,30 +128,6 @@ public class BarcodeInteractorAndroidTest extends TestBase {
         observer.assertNoErrors();
         observer.dispose();
     }
-    private final Observer<String> disposeObserver = new Observer<String>() {
-        @Override
-        public void onSubscribe(Disposable d) {
-            L.mt(TAG, DEBUG, d.toString());
-            disposable = d;
-            unblockIn(300, TimeUnit.MILLISECONDS);
-        }
-
-        @Override
-        public void onNext(String s) {
-            L.m(TAG, DEBUG, s);
-            unblockIn(50, TimeUnit.MILLISECONDS);
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            L.m(TAG, DEBUG, e.toString());
-        }
-
-        @Override
-        public void onComplete() {
-            L.m(TAG, DEBUG);
-        }
-    };
 
     // Scan a barcode to make this test succeed
     @Test(timeout = 15000)
@@ -139,7 +138,7 @@ public class BarcodeInteractorAndroidTest extends TestBase {
         interactor.listen()
             .doOnEach(new Consumer<Notification<String>>() {
                 @Override
-                public void accept(Notification<String> stringNotification) throws Exception {
+                public void accept(Notification<String> stringNotification) {
                     L.mt(TAG, DEBUG, stringNotification.toString());
                     unblock();
                 }
@@ -180,7 +179,7 @@ public class BarcodeInteractorAndroidTest extends TestBase {
     }
 
     @Test
-    public void stopStartService(){
+    public void stopStartService() {
         interactor.stopService();
         SystemClock.sleep(2000);
         interactor.startService();

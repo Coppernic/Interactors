@@ -52,7 +52,7 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
 
         // End previous observer and start new one
         emitter?.apply {
-            if(!isDisposed) {
+            if (!isDisposed) {
                 onComplete()
             }
         }

@@ -79,17 +79,18 @@ afterEvaluate {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 17
-        //noinspection OldTargetApi
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode versioning.info.versionCode
         versionName versioning.info.display
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // Special build type for testing
+        testBuildType "staging"
 
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -100,12 +101,21 @@ android {
         debug {
             ext.alwaysUpdateBuildId = false
         }
+        // Barista and espresso needs minSdkVersion > 18, we create a special builtType for androidTest
+        staging {
+            initWith(buildTypes.debug) // keep versionName and PIN from 'debug'
+            defaultConfig.minSdkVersion 19
+        }
     }
 
     testOptions {
         unitTests.returnDefaultValues = true
     }
 
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
+        exclude 'META-INF/lib_release.kotlin_module'
+    }
 }
 
 String support = "27.1.1"
@@ -114,7 +124,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation "com.android.support:appcompat-v7:$support"
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     // Coppernic
@@ -128,15 +139,19 @@ dependencies {
     compileOnly 'com.google.dagger:dagger:2.16'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation 'org.awaitility:awaitility:3.0.0'
     testImplementation 'org.mockito:mockito-core:2.23.4'
-    testImplementation "org.robolectric:robolectric:4.3"
-    testImplementation "org.awaitility:awaitility:3.0.0"
-    testImplementation "org.hamcrest:java-hamcrest:2.0.0.0"
+    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'org.amshove.kluent:kluent:1.56'
+    testImplementation 'androidx.test:core:1.2.0'
 
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'org.awaitility:awaitility:3.0.0'
-    androidTestImplementation('com.schibsted.spain:barista:2.4.0') {
+    androidTestImplementation('com.schibsted.spain:barista:3.2.0') {
         exclude group: 'com.android.support'
         exclude group: 'org.jetbrains.kotlin' // Only if you already use Kotlin in your project
     }

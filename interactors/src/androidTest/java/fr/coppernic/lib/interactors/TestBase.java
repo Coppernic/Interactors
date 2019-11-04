@@ -1,12 +1,11 @@
 package fr.coppernic.lib.interactors;
 
-import android.support.annotation.NonNull;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public abstract class TestBase {
 
@@ -35,13 +34,13 @@ public abstract class TestBase {
         unblock.set(false);
     }
 
-    public void block(long timeout, @NonNull TimeUnit unit) {
+    public void block(long timeout, TimeUnit unit) {
         await().atMost(timeout, unit).untilTrue(unblock);
         unblock.set(false);
     }
 
     public void doNotGoHere() {
-        assertTrue(false);
+        fail();
     }
 
 }
