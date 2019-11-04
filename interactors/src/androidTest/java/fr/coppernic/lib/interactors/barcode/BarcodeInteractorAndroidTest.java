@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import fr.coppernic.lib.interactors.BuildConfig;
 import fr.coppernic.lib.interactors.TestBase;
+import fr.coppernic.lib.interactors.common.TimeoutRetryPredicate;
 import fr.coppernic.sdk.utils.debug.L;
 import io.reactivex.Notification;
 import io.reactivex.Observer;

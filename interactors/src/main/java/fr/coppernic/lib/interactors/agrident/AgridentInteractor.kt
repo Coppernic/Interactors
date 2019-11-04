@@ -52,10 +52,14 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
 
     private fun setEmitter(e: ObservableEmitter<String>) {
         Timber.d(e.toString())
+
         // End previous observer and start new one
-        if (emitter != null && !emitter!!.isDisposed) {
-            emitter?.onComplete()
+        emitter?.apply {
+            if(!isDisposed) {
+                onComplete()
+            }
         }
+
         emitter = e.apply {
             setDisposable(object : Disposable {
                 private val disposed = AtomicBoolean(false)
@@ -113,7 +117,7 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
         } else if (intent.action == CpcDefinitions.ACTION_AGRIDENT_ERROR) {
             val res = intent.getIntExtra(CpcDefinitions.KEY_RESULT, CpcResult.RESULT.ERROR.ordinal)
             val result = CpcResult.RESULT.values()[res]
-            localEmitter.onError(result.toException())
+            handleError(result.toException())
         }
     }
 
@@ -135,8 +139,10 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
 
     private fun handleError(t: Throwable) {
         unregisterReceiver()
-        if (emitter != null && !emitter!!.isDisposed) {
-            emitter?.onError(t)
+        emitter?.apply {
+            if (!isDisposed) {
+                onError(t)
+            }
         }
     }
 }

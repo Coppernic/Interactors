@@ -1,4 +1,4 @@
-package fr.coppernic.lib.interactors.barcode;
+package fr.coppernic.lib.interactors.common;
 
 import fr.coppernic.sdk.utils.core.CpcResult;
 import io.reactivex.functions.Predicate;
