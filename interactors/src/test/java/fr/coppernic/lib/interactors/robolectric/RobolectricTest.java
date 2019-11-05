@@ -3,16 +3,12 @@ package fr.coppernic.lib.interactors.robolectric;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import fr.coppernic.sdk.cpcutils.BuildConfig;
-
+import static junit.framework.TestCase.fail;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertTrue;
-
 
 /**
  * Base class extended by every Robolectric test in this project.
@@ -20,7 +16,6 @@ import static org.junit.Assert.assertTrue;
  * Robolectric tests are done in a single thread !
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
 public abstract class RobolectricTest {
 
     private AtomicBoolean unblock = new AtomicBoolean(false);
@@ -48,7 +43,7 @@ public abstract class RobolectricTest {
     }
 
     public void doNotGoHere() {
-        assertTrue(false);
+        fail();
     }
 
 }
