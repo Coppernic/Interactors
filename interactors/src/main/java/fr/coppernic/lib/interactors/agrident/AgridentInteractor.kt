@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import fr.coppernic.lib.interactors.ReaderInteractor
-import fr.coppernic.sdk.utils.core.CpcDefinitions
+import fr.coppernic.sdk.core.Defines
 import fr.coppernic.sdk.utils.core.CpcResult
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
@@ -16,9 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 const val AGRIDENT_WEDGE = "fr.coppernic.tools.cpcagridentwedge"
-const val ACTION_READ = "fr.coppernic.tools.agrident.wedge.READ"
-const val AGRIDENT_STOP_SERVICE = "fr.coppernic.intent.action.stop.agrident.service"
-const val AGRIDENT_START_SERVICE = "fr.coppernic.intent.action.start.agrident.service"
 
 class AgridentInteractor @Inject constructor(private val context: Context) : ReaderInteractor<String> {
 
@@ -38,8 +35,8 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
         // Starts Agrident wedge
         val scanIntent = Intent()
         scanIntent.setPackage(AGRIDENT_WEDGE)
-        scanIntent.action = ACTION_READ
-        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.packageName)
+        scanIntent.action = Defines.IntentDefines.ACTION_AGRIDENT_READ
+        scanIntent.putExtra(Defines.Keys.KEY_PACKAGE, context.packageName)
         val info = context.startService(scanIntent)
         if (info == null) {
             handleError(CpcResult.ResultException(CpcResult.RESULT.SERVICE_NOT_FOUND))
@@ -79,8 +76,8 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
 
     private fun registerReceiver() {
         val filter = IntentFilter()
-        filter.addAction(CpcDefinitions.ACTION_AGRIDENT_SUCCESS)
-        filter.addAction(CpcDefinitions.ACTION_AGRIDENT_ERROR)
+        filter.addAction(Defines.IntentDefines.ACTION_AGRIDENT_SUCCESS)
+        filter.addAction(Defines.IntentDefines.ACTION_AGRIDENT_ERROR)
         context.registerReceiver(receiver, filter)
     }
 
@@ -106,16 +103,16 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
             emitter!!
         }
 
-        if (action == CpcDefinitions.ACTION_AGRIDENT_SUCCESS) {
+        if (action == Defines.IntentDefines.ACTION_AGRIDENT_SUCCESS) {
             val extras = intent.extras
             if (extras == null) {
                 Timber.e("No extras for ACTION_AGRIDENT_SUCCESS")
                 return
             }
-            val data = extras.getString(CpcDefinitions.KEY_BARCODE_DATA, "")
+            val data = extras.getString(Defines.Keys.KEY_BARCODE_DATA, "")
             localEmitter.onNext(data)
-        } else if (intent.action == CpcDefinitions.ACTION_AGRIDENT_ERROR) {
-            val res = intent.getIntExtra(CpcDefinitions.KEY_RESULT, CpcResult.RESULT.ERROR.ordinal)
+        } else if (intent.action == Defines.IntentDefines.ACTION_AGRIDENT_ERROR) {
+            val res = intent.getIntExtra(Defines.Keys.KEY_RESULT, CpcResult.RESULT.ERROR.ordinal)
             val result = CpcResult.RESULT.values()[res]
             handleError(result.toException())
         }
@@ -124,16 +121,16 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
     override fun startService() {
         val scanIntent = Intent()
         scanIntent.setPackage(AGRIDENT_WEDGE)
-        scanIntent.action = AGRIDENT_START_SERVICE
-        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.packageName)
+        scanIntent.action = Defines.IntentDefines.ACTION_AGRIDENT_SERVICE_START
+        scanIntent.putExtra(Defines.Keys.KEY_PACKAGE, context.packageName)
         context.startService(scanIntent)
     }
 
     override fun stopService() {
         val scanIntent = Intent()
         scanIntent.setPackage(AGRIDENT_WEDGE)
-        scanIntent.action = AGRIDENT_STOP_SERVICE
-        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.packageName)
+        scanIntent.action = Defines.IntentDefines.ACTION_AGRIDENT_SERVICE_STOP
+        scanIntent.putExtra(Defines.Keys.KEY_PACKAGE, context.packageName)
         context.startService(scanIntent)
     }
 

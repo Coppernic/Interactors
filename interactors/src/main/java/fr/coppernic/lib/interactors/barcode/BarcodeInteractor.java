@@ -12,11 +12,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 import fr.coppernic.lib.interactors.ReaderInteractor;
-import fr.coppernic.sdk.utils.core.CpcDefinitions;
+import fr.coppernic.sdk.core.Defines;
 import fr.coppernic.sdk.utils.core.CpcResult;
 import fr.coppernic.sdk.utils.core.CpcResult.RESULT;
 import fr.coppernic.sdk.utils.debug.L;
-import fr.coppernic.sdk.utils.helpers.CpcOs;
+import fr.coppernic.sdk.utils.helpers.OsHelper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -38,7 +38,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     };
     private final ObservableOnSubscribe<String> observableOnSubscribe = new ObservableOnSubscribe<String>() {
         @Override
-        public void subscribe(ObservableEmitter<String> e) throws Exception {
+        public void subscribe(ObservableEmitter<String> e) {
             setEmitter(e);
             registerReceiver();
         }
@@ -49,7 +49,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     @Inject
     public BarcodeInteractor(Context context) {
         this.context = context;
-        this.servicePackage = CpcOs.getSystemServicePackage(context);
+        this.servicePackage = OsHelper.getSystemServicePackage(context);
     }
 
     /**
@@ -65,12 +65,12 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     public void trig() {
         Intent scanIntent = new Intent();
         scanIntent.setPackage(servicePackage);
-        scanIntent.setAction(CpcDefinitions.INTENT_ACTION_SCAN);
-        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.getPackageName());
+        scanIntent.setAction(Defines.IntentDefines.INTENT_ACTION_SCAN);
+        scanIntent.putExtra(Defines.Keys.KEY_PACKAGE, context.getPackageName());
         ComponentName info = context.startService(scanIntent);
         if (info == null) {
             // Try again with second service
-            servicePackage = CpcOs.getSystemServicePackage(context, "fr.coppernic.features.barcode");
+            servicePackage = OsHelper.getSystemServicePackage(context, "fr.coppernic.features.barcode");
             scanIntent.setPackage(servicePackage);
             info = context.startService(scanIntent);
             if (info == null) {
@@ -100,12 +100,12 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     public void stopService() {
         Intent scanIntent = new Intent();
         scanIntent.setPackage(servicePackage);
-        scanIntent.setAction(CpcDefinitions.INTENT_ACTION_STOP_BARCODE_SERVICE);
-        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.getPackageName());
+        scanIntent.setAction(Defines.IntentDefines.INTENT_ACTION_STOP_BARCODE_SERVICE);
+        scanIntent.putExtra(Defines.Keys.KEY_PACKAGE, context.getPackageName());
         ComponentName info = context.startService(scanIntent);
         if (info == null) {
             // Try again with second service
-            servicePackage = CpcOs.getSystemServicePackage(context, "fr.coppernic.features.barcode");
+            servicePackage = OsHelper.getSystemServicePackage(context, "fr.coppernic.features.barcode");
             scanIntent.setPackage(servicePackage);
             context.startService(scanIntent);
         }
@@ -115,12 +115,12 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     public void startService() {
         Intent scanIntent = new Intent();
         scanIntent.setPackage(servicePackage);
-        scanIntent.setAction(CpcDefinitions.INTENT_ACTION_START_BARCODE_SERVICE);
-        scanIntent.putExtra(CpcDefinitions.KEY_PACKAGE, context.getPackageName());
+        scanIntent.setAction(Defines.IntentDefines.INTENT_ACTION_START_BARCODE_SERVICE);
+        scanIntent.putExtra(Defines.Keys.KEY_PACKAGE, context.getPackageName());
         ComponentName info = context.startService(scanIntent);
         if (info == null) {
             // Try again with second service
-            servicePackage = CpcOs.getSystemServicePackage(context, "fr.coppernic.features.barcode");
+            servicePackage = OsHelper.getSystemServicePackage(context, "fr.coppernic.features.barcode");
             scanIntent.setPackage(servicePackage);
             context.startService(scanIntent);
         }
@@ -152,8 +152,8 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
 
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(CpcDefinitions.ACTION_SCAN_SUCCESS);
-        filter.addAction(CpcDefinitions.ACTION_SCAN_ERROR);
+        filter.addAction(Defines.IntentDefines.ACTION_SCAN_SUCCESS);
+        filter.addAction(Defines.IntentDefines.ACTION_SCAN_ERROR);
         context.registerReceiver(receiver, filter);
     }
 
@@ -184,16 +184,16 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
             return;
         }
 
-        if (action.equals(CpcDefinitions.ACTION_SCAN_SUCCESS)) {
+        if (action.equals(Defines.IntentDefines.ACTION_SCAN_SUCCESS)) {
             Bundle extras = intent.getExtras();
             if (extras == null) {
                 Timber.e("No extras for ACTION_SCAN_SUCCESS");
                 return;
             }
-            String data = extras.getString(CpcDefinitions.KEY_BARCODE_DATA, "");
+            String data = extras.getString(Defines.Keys.KEY_BARCODE_DATA, "");
             emitter.onNext(data);
-        } else if (intent.getAction().equals(CpcDefinitions.ACTION_SCAN_ERROR)) {
-            int res = intent.getIntExtra(CpcDefinitions.KEY_RESULT, RESULT.ERROR.ordinal());
+        } else if (intent.getAction().equals(Defines.IntentDefines.ACTION_SCAN_ERROR)) {
+            int res = intent.getIntExtra(Defines.Keys.KEY_RESULT, RESULT.ERROR.ordinal());
             RESULT result = RESULT.values()[res];
             emitter.onError(result.toException());
         }
