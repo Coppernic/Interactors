@@ -24,9 +24,6 @@ class PictureInteractor @Inject constructor() : ActivityResultListener {
     @Inject
     lateinit var context: Context
 
-    @Inject
-    lateinit var storageProvider: PictureInteractorStorageProvider
-
     private var subject: SingleSubject<Uri> = SingleSubject.create()
 
     private var request = Request(File(""), Uri.EMPTY, 0)
@@ -34,41 +31,9 @@ class PictureInteractor @Inject constructor() : ActivityResultListener {
     /**
      * Launch default camera app to take a picture.
      *
-     * Path of picture saved is given by [PictureInteractorStorageProvider] implementation using id
-     *
-     * @param id Identifier passed to [PictureInteractorStorageProvider] to get picture path. Used also to compute startActivity request
-     * code.
-     *
-     * @return [Uri] via a [Single]
-     */
-    //FIXME Should "id" be Any object ?
-    @Synchronized
-    fun trig(id: String, activity: Activity): Single<Uri> {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val cn = intent.resolveActivity(activity.packageManager)
-        return when {
-            id.isEmpty() -> Single.error(InteractorException("An id must be provided to \"trig\" method"))
-            cn == null -> Single.error(ActivityNotFoundException())
-            request.isOnGoing() -> Single.error(InteractorException("Pending request in progress: $request"))
-            else -> {
-                subject = SingleSubject.create()
-                try {
-                    setup(activity, id)
-                    activity.startActivityForResult(makeIntent(), request.id)
-                    subject
-                } catch (e: Exception) {
-                    Single.error<Uri>(e)
-                }
-            }
-        }
-    }
-
-    /**
-     * Launch default camera app to take a picture.
-     *
      * @param file File where picture will be saved
      *
-     * @return [Uri] via a [Single]
+     * @return [Uri] Uri used by this lib via a [Single]
      */
     @Synchronized
     fun trig(file: File, activity: Activity): Single<Uri> {
@@ -118,13 +83,6 @@ class PictureInteractor @Inject constructor() : ActivityResultListener {
                     request.uri,
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-    }
-
-    private fun setup(context: Context, id: String) {
-        val fromCam = storageProvider.getPictureFileForId(id)
-        val uriForCam = FileProvider.getUriForFile(context, getAuth(context), fromCam)
-
-        request = Request(fromCam, uriForCam, id.hashCode())
     }
 
     private fun setup(context: Context, file: File) {

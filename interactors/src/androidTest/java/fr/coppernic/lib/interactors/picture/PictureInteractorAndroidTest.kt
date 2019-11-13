@@ -71,13 +71,6 @@ class PictureInteractorAndroidTest {
         context = ApplicationProvider.getApplicationContext()
         interactor = PictureInteractor().apply {
             context = ApplicationProvider.getApplicationContext()
-            storageProvider = object : PictureInteractorStorageProvider {
-                override fun getPictureFileForId(id: String): File {
-                    return context.cacheDir.resolve(id).apply {
-                        mkdirs()
-                    }.resolve("$id.jpg")
-                }
-            }
         }
 
         intentsTestRule.activity.notifier.add(interactor)
@@ -88,19 +81,6 @@ class PictureInteractorAndroidTest {
     @After
     fun tearDown() {
         intentsTestRule.activity.notifier.remove(interactor)
-    }
-
-    @Test
-    fun trig() {
-        val id = "1"
-
-        val observer = interactor.trig(id, intentsTestRule.activity).test()
-
-        intended(captureImage(DEFAULT_SIZE, DEFAULT_SIZE))
-
-        observer.awaitTerminalEvent(3, TimeUnit.SECONDS)
-        observer.assertNoTimeout()
-        observer.assertValue(Uri.parse("content://fr.coppernic.lib.interactors.test.fr.coppernic.lib.interactors.provider/cache/$id/1.jpg"))
     }
 
     @Test
@@ -143,34 +123,5 @@ class PictureInteractorAndroidTest {
 
         observer.awaitTerminalEvent(3, TimeUnit.SECONDS)
         observer.assertError(IllegalArgumentException::class.java)
-    }
-
-    @Test
-    fun trigEmptyId() {
-        val id = ""
-
-        val observer = interactor.trig(id, intentsTestRule.activity).test()
-
-        observer.awaitTerminalEvent(3, TimeUnit.SECONDS)
-        observer.assertError(InteractorException::class.java)
-        observer.assertErrorMessage("An id must be provided to \"trig\" method")
-    }
-
-    @Test
-    fun doubleTrig() {
-        val id = "1"
-
-        val observer1 = interactor.trig(id, intentsTestRule.activity).test()
-        val observer2 = interactor.trig(id, intentsTestRule.activity).test()
-
-        intended(captureImage(DEFAULT_SIZE, DEFAULT_SIZE))
-
-        observer1.awaitTerminalEvent(3, TimeUnit.SECONDS)
-        observer2.awaitTerminalEvent(3, TimeUnit.SECONDS)
-        observer1.assertNoTimeout()
-        observer2.assertNoTimeout()
-        observer1.assertNoErrors()
-        observer2.assertError(InteractorException::class.java)
-        observer2.assertErrorMessage("Pending request in progress: Request(file=/data/user/0/fr.coppernic.lib.interactors.test/cache/1/1.jpg, uri=content://fr.coppernic.lib.interactors.test.fr.coppernic.lib.interactors.provider/cache/1/1.jpg, id=49)")
     }
 }
