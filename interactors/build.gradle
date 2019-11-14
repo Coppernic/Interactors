@@ -9,50 +9,6 @@ apply plugin: 'checkstyle'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'fr.coppernic.extensions'
-
-
-def pomConfig = {
-    licenses {
-        license {
-            name POM_LICENCE_NAME
-            url POM_LICENCE_URL
-            distribution POM_LICENCE_DIST
-        }
-    }
-    developers {
-        developer {
-            id POM_DEVELOPER_ID
-            name POM_DEVELOPER_NAME
-        }
-    }
-    scm {
-        url POM_SCM_URL
-        connection POM_SCM_CONNECTION
-    }
-}
-
-copper {
-    android {
-        projectGroup = GROUP
-    }
-    publications {
-        skipForVariant = { variant ->
-            if (variant.buildType.name == "debug") {
-                return true
-            }
-            return false
-        }
-        publicationHook = {
-            it.pom.withXml {
-                def root = asNode()
-                root.children().last() + pomConfig
-            }
-        }
-    }
-}
-
-apply plugin: 'fr.coppernic.android'
 
 repositories {
     google()
@@ -140,9 +96,10 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.hamcrest:hamcrest:2.2'
+    //noinspection GradleDependency
     testImplementation 'org.awaitility:awaitility:3.0.0'
     testImplementation 'org.mockito:mockito-core:2.23.4'
-    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'org.robolectric:robolectric:4.3.1'
     testImplementation 'org.amshove.kluent:kluent:1.56'
     testImplementation 'androidx.test:core:1.2.0'
 
@@ -150,6 +107,7 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    //noinspection GradleDependency
     androidTestImplementation 'org.awaitility:awaitility:3.0.0'
     androidTestImplementation('com.schibsted.spain:barista:3.2.0') {
         exclude group: 'com.android.support'
@@ -167,36 +125,5 @@ configurations.all {
         }
     }
 }
-String v = "$project.versioning.info.display"
-String t = "$project.versioning.info.tag"
 
-bintray {
-    user = project.hasProperty("bintray_user") ? project.bintray_user : ""
-    key = project.hasProperty("bintray_key") ? project.bintray_key : ""
-    publish = true
-    pkg {
-        repo = BINTRAY_REPO
-        name = rootProject.name
-        userOrg = BINTRAY_ORG
-        licenses = ["Apache-2.0"]
-        labels = BINTRAY_LABELS.split(',')
-        vcsUrl = POM_SCM_URL
-        websiteUrl = POM_URL
-        issueTrackerUrl = POM_ISSUES_URL
-        githubRepo = GITHUB_REPO //Optional Github repository
-        githubReleaseNotesFile = GITHUB_README //Optional Github readme file
-        version {
-            name = v
-            desc = POM_DESCRIPTION
-            released = new Date()
-            vcsTag = t
-        }
-    }
-}
-
-// Add publications to bintray
-afterEvaluate {
-    bintray.publications = project.publishing.publications.collect {
-        it.name
-    }
-}
+apply from: rootProject.file('gradle/gradle-publish.gradle')
