@@ -69,10 +69,7 @@ class PictureInteractorAndroidTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        interactor = PictureInteractor().apply {
-            context = ApplicationProvider.getApplicationContext()
-        }
-
+        interactor = PictureInteractor(ApplicationProvider.getApplicationContext())
         intentsTestRule.activity.notifier.add(interactor)
 
         mockAndroidCamera()

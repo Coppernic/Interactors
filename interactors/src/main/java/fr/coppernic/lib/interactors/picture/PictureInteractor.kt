@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
 import fr.coppernic.lib.interactors.common.errors.InteractorException
 import fr.coppernic.lib.interactors.common.ui.ActivityResultListener
 import fr.coppernic.sdk.utils.debug.ObjPrinter
@@ -19,10 +20,7 @@ import javax.inject.Inject
 
 const val AUTH_SUFFIX = ".fr.coppernic.lib.interactors.provider"
 
-class PictureInteractor @Inject constructor() : ActivityResultListener {
-
-    @Inject
-    lateinit var context: Context
+class PictureInteractor @Inject constructor(private val context: Context) : ActivityResultListener {
 
     private var subject: SingleSubject<Uri> = SingleSubject.create()
 
@@ -32,21 +30,55 @@ class PictureInteractor @Inject constructor() : ActivityResultListener {
      * Launch default camera app to take a picture.
      *
      * @param file File where picture will be saved
+     * @param activity Activity used for calling [Activity.startActivityForResult]
      *
      * @return [Uri] Uri used by this lib via a [Single]
      */
     @Synchronized
-    fun trig(file: File, activity: Activity): Single<Uri> {
+    fun trig(file: File, activity: Activity): Single<Uri> = trigInternal(file, activity)
+
+    /**
+     * Launch default camera app to take a picture.
+     *
+     * @param file File where picture will be saved
+     * @param fragment Fragment used for calling [Fragment.startActivityForResult]
+     *
+     * @return [Uri] Uri used by this lib via a [Single]
+     */
+    @Synchronized
+    fun trig(file: File, fragment: Fragment): Single<Uri> = trigInternal(file, fragment)
+
+    /**
+     * Launch default camera app to take a picture.
+     *
+     * @param file File where picture will be saved
+     * @param fragment Fragment used for calling [android.app.Fragment.startActivityForResult]
+     *
+     * @return [Uri] Uri used by this lib via a [Single]
+     */
+    @Suppress("DEPRECATION")
+    @Synchronized
+    fun trig(file: File, fragment: android.app.Fragment): Single<Uri> = trigInternal(file, fragment)
+
+    @Suppress("DEPRECATION")
+    private fun trigInternal(file: File, caller: Any): Single<Uri> {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val cn = intent.resolveActivity(activity.packageManager)
+        val cn = intent.resolveActivity(context.packageManager)
         return when {
             cn == null -> Single.error(ActivityNotFoundException())
             request.isOnGoing() -> Single.error(InteractorException("Pending request in progress: $request"))
             else -> {
                 subject = SingleSubject.create()
                 try {
-                    setup(activity, file)
-                    activity.startActivityForResult(makeIntent(), request.id)
+                    setup(file)
+                    when (caller) {
+                        is Activity -> caller.startActivityForResult(makeIntent(), request.id)
+                        is Fragment -> caller.startActivityForResult(makeIntent(), request.id)
+                        is android.app.Fragment -> caller.startActivityForResult(makeIntent(), request.id)
+                        else -> {
+                            throw InteractorException("Caller is not an activity or fragment : ${caller.javaClass.name}")
+                        }
+                    }
                     subject
                 } catch (e: Exception) {
                     Single.error<Uri>(e)
@@ -56,7 +88,7 @@ class PictureInteractor @Inject constructor() : ActivityResultListener {
     }
 
     /**
-     * To be called by the activity passed to [trig] for this interactor to be notified when picture has been taken.
+     * To be called by the activity passed to [trigInternal] for this interactor to be notified when picture has been taken.
      *
      * Put the same param than [Activity.onActivityResult]
      */
@@ -85,7 +117,7 @@ class PictureInteractor @Inject constructor() : ActivityResultListener {
         }
     }
 
-    private fun setup(context: Context, file: File) {
+    private fun setup(file: File) {
         val uriForCam = FileProvider.getUriForFile(context, getAuth(context), file)
 
         request = Request(file, uriForCam, file.hashCode())

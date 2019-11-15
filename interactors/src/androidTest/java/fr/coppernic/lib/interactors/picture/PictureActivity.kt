@@ -8,12 +8,11 @@ import timber.log.Timber
 
 class PictureActivity : Activity() {
 
-    lateinit var notifier: ActivityResultNotifier
+    var notifier: ActivityResultNotifier = ActivityResultNotifier()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.i("onCreate")
         super.onCreate(savedInstanceState)
-        notifier = ActivityResultNotifier()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
