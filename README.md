@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'fr.coppernic.lib:interactors:0.1.0'
+    implementation 'fr.coppernic.lib:interactors:0.1.1'
 }
 ```
 
