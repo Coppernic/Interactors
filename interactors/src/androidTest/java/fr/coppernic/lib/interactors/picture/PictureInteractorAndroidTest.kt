@@ -108,7 +108,7 @@ class PictureInteractorAndroidTest {
         observer2.assertNoTimeout()
         observer1.assertValue(Uri.parse("content://fr.coppernic.lib.interactors.test.fr.coppernic.lib.interactors.provider/cache/pic.jpg"))
         observer2.assertError(InteractorException::class.java)
-        observer2.assertErrorMessage("Pending request in progress: Request(file=/data/user/0/fr.coppernic.lib.interactors.test/cache/pic.jpg, uri=content://fr.coppernic.lib.interactors.test.fr.coppernic.lib.interactors.provider/cache/pic.jpg, id=1117202421)")
+        observer2.assertErrorMessage("Pending request in progress: Request(file=/data/user/0/fr.coppernic.lib.interactors.test/cache/pic.jpg, uri=content://fr.coppernic.lib.interactors.test.fr.coppernic.lib.interactors.provider/cache/pic.jpg, id=10229)")
     }
 
     @Test
