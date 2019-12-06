@@ -129,7 +129,8 @@ class PictureInteractor @Inject constructor(private val context: Context) : Acti
     private fun setup(file: File) {
         val uriForCam = FileProvider.getUriForFile(context, getAuth(context), file)
 
-        request = Request(file, uriForCam, file.hashCode())
+        // We can use only lower 16 bit for request code
+        request = Request(file, uriForCam, file.hashCode() and 0x0000FFFF)
     }
 
     private fun getAuth(context: Context): String {
