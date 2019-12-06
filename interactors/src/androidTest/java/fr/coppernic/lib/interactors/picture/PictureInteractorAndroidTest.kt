@@ -34,8 +34,8 @@ class PictureInteractorAndroidTest {
         @BeforeClass
         @JvmStatic
         fun beforeClass() {
-            InteractorsDefines.VERBOSE = true
-            InteractorsDefines.PROFILE = true
+            InteractorsDefines.verbose = true
+            InteractorsDefines.profile = true
             Timber.plant(Timber.DebugTree())
         }
 

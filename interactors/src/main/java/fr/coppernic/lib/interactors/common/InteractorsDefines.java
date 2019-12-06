@@ -16,10 +16,18 @@ public final class InteractorsDefines {
     /**
      * True to activate verbose logging in all lib
      */
-    public static Boolean VERBOSE = false;
+    public static Boolean verbose = false;
 
     /**
      * True to activate profiler in all lib
      */
-    public static Boolean PROFILE = false;
+    public static Boolean profile = false;
+
+    public static void setVerbose(Boolean b) {
+        verbose = b;
+    }
+
+    public static void setProfile(Boolean b) {
+        profile = b;
+    }
 }

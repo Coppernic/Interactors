@@ -10,7 +10,7 @@ import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import fr.coppernic.lib.interactors.common.InteractorsDefines.LOG
-import fr.coppernic.lib.interactors.common.InteractorsDefines.VERBOSE
+import fr.coppernic.lib.interactors.common.InteractorsDefines.verbose
 import fr.coppernic.lib.interactors.common.errors.InteractorException
 import fr.coppernic.lib.interactors.common.rx.error
 import fr.coppernic.lib.interactors.common.rx.success
@@ -65,7 +65,7 @@ class PictureInteractor @Inject constructor(private val context: Context) : Acti
 
     @Suppress("DEPRECATION")
     private fun trigInternal(file: File, caller: Any): Single<Uri> {
-        if (VERBOSE) {
+        if (verbose) {
             LOG.trace("Trig picture for file ${file.absolutePath}")
         }
 
