@@ -21,9 +21,9 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.disposables.Disposable;
-import timber.log.Timber;
 
 import static fr.coppernic.lib.interactors.BuildConfig.DEBUG;
+import static fr.coppernic.lib.interactors.common.InteractorsDefines.LOG;
 
 public class BarcodeInteractor implements ReaderInteractor<String> {
 
@@ -161,7 +161,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
         try {
             context.unregisterReceiver(receiver);
         } catch (Exception e) {
-            Timber.v(e.toString());
+            LOG.trace(e.toString());
         }
     }
 
@@ -175,7 +175,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     private void processIntent(Intent intent) {
         String action = intent.getAction();
         if (action == null) {
-            Timber.e("Action of %s is null", intent);
+            LOG.error("Action of {} is null", intent);
             return;
         }
 
@@ -187,7 +187,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
         if (action.equals(Defines.IntentDefines.ACTION_SCAN_SUCCESS)) {
             Bundle extras = intent.getExtras();
             if (extras == null) {
-                Timber.e("No extras for ACTION_SCAN_SUCCESS");
+                LOG.error("No extras for ACTION_SCAN_SUCCESS");
                 return;
             }
             String data = extras.getString(Defines.Keys.KEY_BARCODE_DATA, "");

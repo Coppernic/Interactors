@@ -15,6 +15,7 @@ repositories {
     jcenter()
     maven { url 'https://maven.fabric.io/public' }
     maven { url 'https://artifactory.coppernic.fr/artifactory/libs-release' }
+    maven { url "https://jitpack.io" }
 }
 
 
@@ -74,24 +75,28 @@ android {
     }
 }
 
-String support = "27.1.1"
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.jakewharton.timber:timber:4.7.1'
 
     // Coppernic
     implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.18.4'
-    implementation 'fr.coppernic.sdk.core:CpcCore:1.8.17'
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.8.18'
+
+    //logging
+    implementation "org.slf4j:slf4j-api:1.7.25"
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
 
+    // Picture cropping
+    //compileOnly 'com.github.yalantis:ucrop:2.2.4'
+
     // Dagger
+    //noinspection GradleDependency
     compileOnly 'com.google.dagger:dagger:2.16'
 
     testImplementation 'junit:junit:4.12'
@@ -103,6 +108,13 @@ dependencies {
     testImplementation 'org.amshove.kluent:kluent:1.56'
     testImplementation 'androidx.test:core:1.2.0'
 
+    // Timber
+    testImplementation ('com.jakewharton.timber:timber:4.7.1') {
+        exclude group:'org.jetbrains'
+    }
+    testImplementation 'fr.bipi.treessence:treessence:0.3.0'
+    testImplementation 'com.arcao:slf4j-timber:3.1'
+
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation 'androidx.test:runner:1.2.0'
@@ -113,15 +125,23 @@ dependencies {
         exclude group: 'com.android.support'
         exclude group: 'org.jetbrains.kotlin' // Only if you already use Kotlin in your project
     }
+
+    // Timber
+    androidTestImplementation ('com.jakewharton.timber:timber:4.7.1') {
+        exclude group: 'org.jetbrains'
+    }
+    androidTestImplementation 'fr.bipi.treessence:treessence:0.3.0'
+    androidTestImplementation 'com.arcao:slf4j-timber:3.1'
+
 }
+
+String versionAnnotations = "13.0"
 
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         def requested = details.requested
-        if (requested.group == 'com.android.support') {
-            if (!requested.name.startsWith("multidex")) {
-                details.useVersion support
-            }
+        if (requested.group == 'org.jetbrains' && requested.name == 'annotations') {
+            details.useVersion versionAnnotations
         }
     }
 }

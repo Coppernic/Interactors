@@ -11,7 +11,7 @@ import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.schibsted.spain.barista.rule.BaristaRule
+import fr.coppernic.lib.interactors.common.InteractorsDefines
 import fr.coppernic.lib.interactors.common.errors.InteractorException
 import fr.coppernic.lib.interactors.picture.PictureIntentMatchers.captureImage
 import org.junit.*
@@ -25,9 +25,6 @@ import java.util.concurrent.TimeUnit
 class PictureInteractorAndroidTest {
 
     @get:Rule
-    var baristaRule = BaristaRule.create(PictureActivity::class.java)
-
-    @get:Rule
     val intentsTestRule = IntentsTestRule(PictureActivity::class.java)
 
     lateinit var interactor: PictureInteractor
@@ -37,6 +34,8 @@ class PictureInteractorAndroidTest {
         @BeforeClass
         @JvmStatic
         fun beforeClass() {
+            InteractorsDefines.VERBOSE = true
+            InteractorsDefines.PROFILE = true
             Timber.plant(Timber.DebugTree())
         }
 
@@ -77,7 +76,7 @@ class PictureInteractorAndroidTest {
 
     @After
     fun tearDown() {
-        intentsTestRule.activity.notifier.remove(interactor)
+        intentsTestRule.activity?.notifier?.remove(interactor)
     }
 
     @Test

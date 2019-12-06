@@ -5,13 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import fr.coppernic.lib.interactors.ReaderInteractor
+import fr.coppernic.lib.interactors.common.InteractorsDefines.LOG
 import fr.coppernic.sdk.core.Defines
 import fr.coppernic.sdk.utils.core.CpcResult
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.Disposable
-import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -48,7 +48,7 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
     }
 
     private fun setEmitter(e: ObservableEmitter<String>) {
-        Timber.d(e.toString())
+        LOG.debug(e.toString())
 
         // End previous observer and start new one
         emitter?.apply {
@@ -62,7 +62,7 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
                 private val disposed = AtomicBoolean(false)
 
                 override fun dispose() {
-                    Timber.d("unregister")
+                    LOG.debug("unregister")
                     unregisterReceiver()
                     disposed.set(true)
                 }
@@ -85,14 +85,14 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
         try {
             context.unregisterReceiver(receiver)
         } catch (e: Exception) {
-            Timber.v(e.toString())
+            LOG.trace(e.toString())
         }
     }
 
     private fun processIntent(intent: Intent) {
         val action = intent.action
         if (action == null) {
-            Timber.e("Action of %s is null", intent)
+            LOG.error("Action of {} is null", intent)
             return
         }
 
@@ -106,7 +106,7 @@ class AgridentInteractor @Inject constructor(private val context: Context) : Rea
         if (action == Defines.IntentDefines.ACTION_AGRIDENT_SUCCESS) {
             val extras = intent.extras
             if (extras == null) {
-                Timber.e("No extras for ACTION_AGRIDENT_SUCCESS")
+                LOG.error("No extras for ACTION_AGRIDENT_SUCCESS")
                 return
             }
             val data = extras.getString(Defines.Keys.KEY_BARCODE_DATA, "")

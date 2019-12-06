@@ -9,12 +9,15 @@ import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import fr.coppernic.lib.interactors.common.InteractorsDefines.LOG
+import fr.coppernic.lib.interactors.common.InteractorsDefines.VERBOSE
 import fr.coppernic.lib.interactors.common.errors.InteractorException
+import fr.coppernic.lib.interactors.common.rx.error
+import fr.coppernic.lib.interactors.common.rx.success
 import fr.coppernic.lib.interactors.common.ui.ActivityResultListener
 import fr.coppernic.sdk.utils.debug.ObjPrinter
 import io.reactivex.Single
-import io.reactivex.subjects.SingleSubject
-import timber.log.Timber
+import io.reactivex.SingleEmitter
 import java.io.File
 import javax.inject.Inject
 
@@ -22,7 +25,7 @@ const val AUTH_SUFFIX = ".fr.coppernic.lib.interactors.provider"
 
 class PictureInteractor @Inject constructor(private val context: Context) : ActivityResultListener {
 
-    private var subject: SingleSubject<Uri> = SingleSubject.create()
+    private var emitter: SingleEmitter<Uri>? = null
 
     private var request = Request(File(""), Uri.EMPTY, 0)
 
@@ -62,13 +65,18 @@ class PictureInteractor @Inject constructor(private val context: Context) : Acti
 
     @Suppress("DEPRECATION")
     private fun trigInternal(file: File, caller: Any): Single<Uri> {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        val cn = intent.resolveActivity(context.packageManager)
+        if (VERBOSE) {
+            LOG.trace("Trig picture for file ${file.absolutePath}")
+        }
+
+        val cn = Intent(MediaStore.ACTION_IMAGE_CAPTURE).resolveActivity(context.packageManager)
+
         return when {
             cn == null -> Single.error(ActivityNotFoundException())
             request.isOnGoing() -> Single.error(InteractorException("Pending request in progress: $request"))
-            else -> {
-                subject = SingleSubject.create()
+
+            else -> Single.create {
+                emitter = it
                 try {
                     setup(file)
                     when (caller) {
@@ -79,9 +87,9 @@ class PictureInteractor @Inject constructor(private val context: Context) : Acti
                             throw InteractorException("Caller is not an activity or fragment : ${caller.javaClass.name}")
                         }
                     }
-                    subject
                 } catch (e: Exception) {
-                    Single.error<Uri>(e)
+                    request.clear()
+                    emitter?.error(e)
                 }
             }
         }
@@ -94,14 +102,15 @@ class PictureInteractor @Inject constructor(private val context: Context) : Acti
      */
     @Synchronized
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Timber.v("code $requestCode, result $resultCode, data ${ObjPrinter.bundleToString(data?.extras)}")
+        LOG.trace("code $requestCode, result $resultCode, data ${ObjPrinter.bundleToString(data?.extras)}")
 
         when {
-            requestCode != request.id -> Timber.v("Got request $requestCode instead of ${request.id}, waiting for our id...")
-            resultCode != Activity.RESULT_OK -> subject.onError(InteractorException("Taking picture failed, result $resultCode"))
+            request.id == 0 -> LOG.trace("We are not waiting for activity result")
+            requestCode != request.id -> LOG.trace("Got request $requestCode instead of ${request.id}, waiting for our id...")
+            resultCode != Activity.RESULT_OK -> emitter?.error(InteractorException("Taking picture failed, result $resultCode"))
             else -> {
-                subject.onSuccess(request.uri)
                 request.clear()
+                emitter?.success(request.uri)
             }
         }
     }
