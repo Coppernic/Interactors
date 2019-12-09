@@ -107,7 +107,10 @@ class PictureInteractor @Inject constructor(private val context: Context) : Acti
         when {
             request.id == 0 -> LOG.trace("We are not waiting for activity result")
             requestCode != request.id -> LOG.trace("Got request $requestCode instead of ${request.id}, waiting for our id...")
-            resultCode != Activity.RESULT_OK -> emitter?.error(InteractorException("Taking picture failed, result $resultCode"))
+            resultCode != Activity.RESULT_OK -> {
+                request.clear()
+                emitter?.error(InteractorException("Taking picture failed, result $resultCode"))
+            }
             else -> {
                 request.clear()
                 emitter?.success(request.uri)

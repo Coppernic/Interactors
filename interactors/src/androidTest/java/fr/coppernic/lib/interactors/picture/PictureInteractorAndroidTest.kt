@@ -49,19 +49,19 @@ class PictureInteractorAndroidTest {
 
         @JvmStatic
         @JvmOverloads
-        fun mockAndroidCamera(width: Int = DEFAULT_SIZE, height: Int = DEFAULT_SIZE) {
-            val result = createImageCaptureStub()
+        fun mockAndroidCamera(resCode: Int = Activity.RESULT_OK, width: Int = DEFAULT_SIZE, height: Int = DEFAULT_SIZE) {
+            val result = createImageCaptureStub(resCode)
             intending(captureImage(width, height)).respondWith(result)
         }
 
         @JvmStatic
-        private fun createImageCaptureStub(): Instrumentation.ActivityResult {
+        private fun createImageCaptureStub(resCode: Int = Activity.RESULT_OK): Instrumentation.ActivityResult {
             val resultBundle = Bundle()
 
             val resultData = Intent()
             resultData.putExtras(resultBundle)
 
-            return Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
+            return Instrumentation.ActivityResult(resCode, resultData)
         }
     }
 
@@ -70,8 +70,6 @@ class PictureInteractorAndroidTest {
         context = ApplicationProvider.getApplicationContext()
         interactor = PictureInteractor(ApplicationProvider.getApplicationContext())
         intentsTestRule.activity.notifier.add(interactor)
-
-        mockAndroidCamera()
     }
 
     @After
@@ -81,6 +79,8 @@ class PictureInteractorAndroidTest {
 
     @Test
     fun trigFile() {
+        mockAndroidCamera()
+
         val file = context.cacheDir.resolve("pic.jpg")
 
         val observer = interactor.trig(file, intentsTestRule.activity).test()
@@ -94,6 +94,8 @@ class PictureInteractorAndroidTest {
 
     @Test
     fun doubleTrigFile() {
+        mockAndroidCamera()
+
         val file1 = context.cacheDir.resolve("pic.jpg")
         val file2 = context.cacheDir.resolve("error.jpg")
 
@@ -113,6 +115,8 @@ class PictureInteractorAndroidTest {
 
     @Test
     fun trigNotExistentFile() {
+        mockAndroidCamera()
+
         val file = File("/somewhere/the/rainbow")
 
         val observer = interactor.trig(file, intentsTestRule.activity).test()
@@ -120,4 +124,21 @@ class PictureInteractorAndroidTest {
         observer.awaitTerminalEvent(3, TimeUnit.SECONDS)
         observer.assertError(IllegalArgumentException::class.java)
     }
+
+    @Test
+    fun trigFileAndCancel() {
+        mockAndroidCamera(Activity.RESULT_CANCELED)
+
+        val file = context.cacheDir.resolve("pic.jpg")
+
+        val observer = interactor.trig(file, intentsTestRule.activity).test()
+
+        intended(captureImage(DEFAULT_SIZE, DEFAULT_SIZE))
+
+        observer.awaitTerminalEvent(3, TimeUnit.SECONDS)
+        observer.assertNoTimeout()
+        observer.assertError(InteractorException::class.java)
+        observer.assertErrorMessage("Taking picture failed, result ${Activity.RESULT_CANCELED}")
+    }
+
 }
