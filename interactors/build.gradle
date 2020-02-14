@@ -10,14 +10,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-repositories {
-    google()
-    jcenter()
-    maven { url 'https://maven.fabric.io/public' }
-    maven { url 'https://artifactory.coppernic.fr/artifactory/libs-release' }
-    maven { url "https://jitpack.io" }
-}
-
 
 task checkstyle(type: Checkstyle) {
     configFile rootProject.file('config/checkstyle.xml')
@@ -36,11 +28,11 @@ afterEvaluate {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode versioning.info.versionCode
         versionName versioning.info.display
 
@@ -76,25 +68,25 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
+    // Jet pack
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.core:core-ktx:1.2.0'
 
-    // Coppernic
-    implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.18.4'
-    implementation 'fr.coppernic.sdk.core:CpcCore:1.8.18'
-    implementation 'fr.coppernic.sdk.ocr:CpcOcr:3.0.0'
-
-    //logging
+    // Logging
     implementation "org.slf4j:slf4j-api:1.7.25"
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
 
-    // Picture cropping
-    //compileOnly 'com.github.yalantis:ucrop:2.2.4'
+    // Coppernic
+    implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.0'
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.9.0'
 
     // Dagger
     //noinspection GradleDependency
@@ -116,10 +108,19 @@ dependencies {
     testImplementation 'fr.bipi.treessence:treessence:0.3.0'
     testImplementation 'com.arcao:slf4j-timber:3.1'
 
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'org.amshove.kluent:kluent-android:1.49'
+
+    // Logs
+    androidTestImplementation 'com.arcao:slf4j-timber:3.1'
+    androidTestImplementation ('com.jakewharton.timber:timber:4.7.1') {
+        exclude group: 'org.jetbrains'
+    }
+    androidTestImplementation 'fr.bipi.treessence:treessence:0.3.0'
     //noinspection GradleDependency
     androidTestImplementation 'org.awaitility:awaitility:3.0.0'
     androidTestImplementation('com.schibsted.spain:barista:3.2.0') {
@@ -127,24 +128,6 @@ dependencies {
         exclude group: 'org.jetbrains.kotlin' // Only if you already use Kotlin in your project
     }
 
-    // Timber
-    androidTestImplementation ('com.jakewharton.timber:timber:4.7.1') {
-        exclude group: 'org.jetbrains'
-    }
-    androidTestImplementation 'fr.bipi.treessence:treessence:0.3.0'
-    androidTestImplementation 'com.arcao:slf4j-timber:3.1'
-
-}
-
-String versionAnnotations = "13.0"
-
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        def requested = details.requested
-        if (requested.group == 'org.jetbrains' && requested.name == 'annotations') {
-            details.useVersion versionAnnotations
-        }
-    }
 }
 
 apply from: rootProject.file('gradle/gradle-publish.gradle')
