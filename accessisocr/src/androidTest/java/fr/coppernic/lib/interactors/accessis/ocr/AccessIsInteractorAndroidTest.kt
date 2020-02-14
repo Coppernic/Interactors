@@ -1,7 +1,8 @@
-package fr.coppernic.lib.interactors.accessis
+package fr.coppernic.lib.interactors.accessis.ocr
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import fr.coppernic.sdk.power.impl.cone.ConePeripheral
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -16,12 +17,17 @@ class AccessIsInteractorAndroidTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        // Powers on OCR reader
+        ConePeripheral.OCR_ACCESSIS_AI310E_USB.on(context)
         interactor = AccessIsInteractor(context)
     }
 
     @After
     fun tearDown() {
+        // Powers off OCR reader
+        ConePeripheral.OCR_ACCESSIS_AI310E_USB.off(context)
     }
+
 
     // Read a passport or ID card to make this test succeed
     @Test
