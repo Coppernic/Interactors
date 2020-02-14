@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fr.coppernic.lib.interactors.accessis.ocr" />
+<manifest package="fr.coppernic.lib.interactors.ocr" />
