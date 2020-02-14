@@ -1,6 +1,7 @@
 package fr.coppernic.lib.interactors.accessis.ocr
 
 import android.content.Context
+import fr.coppernic.lib.interactors.log.InteractorsDefines
 import fr.coppernic.lib.interactors.log.InteractorsDefines.LOG
 import fr.coppernic.sdk.core.Defines.SerialDefines.OCR_READER_BAUDRATE_CONE
 import fr.coppernic.sdk.core.Defines.SerialDefines.OCR_READER_PORT_CONE
@@ -12,7 +13,7 @@ import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.atomic.AtomicBoolean
 
-class AccessIsInteractor(val context: Context) {
+class AccessIsInteractor(private val context: Context) {
     private var emitter: ObservableEmitter<String>? = null
     private var mrzReader: MrzReader? = null
 
@@ -55,7 +56,9 @@ class AccessIsInteractor(val context: Context) {
                 private val disposed = AtomicBoolean(false)
 
                 override fun dispose() {
-                    LOG.debug("dispose")
+                    if(InteractorsDefines.verbose) {
+                        LOG.trace("dispose")
+                    }
                     disposed.set(true)
                     mrzReader?.close()
                 }
@@ -70,16 +73,22 @@ class AccessIsInteractor(val context: Context) {
     private val mrzListener = object : MrzReader.Listener {
         override fun onFirmware(firmware: String) {
             //Display Firmware version
-            LOG.debug(firmware)
+            if(InteractorsDefines.verbose) {
+                LOG.trace(firmware)
+            }
         }
 
         override fun onMenuData(menu: String) {
             //Display menu data
-            LOG.debug(menu)
+            if(InteractorsDefines.verbose) {
+                LOG.trace(menu)
+            }
         }
 
         override fun onMrz(mrz: String) {
-            LOG.debug(mrz)
+            if(InteractorsDefines.verbose) {
+                LOG.trace(mrz)
+            }
             emitter?.apply {
                 if(!isDisposed){
                     onNext(mrz)
