@@ -10,9 +10,8 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
 
-
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 17
         targetSdkVersion 29
         versionCode versioning.info.versionCode
         versionName versioning.info.display
@@ -28,10 +27,14 @@ android {
         }
     }
 
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
+        exclude 'META-INF/lib_release.kotlin_module'
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'fr.coppernic.sdk.ocr:CpcOcr:3.0.0'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
