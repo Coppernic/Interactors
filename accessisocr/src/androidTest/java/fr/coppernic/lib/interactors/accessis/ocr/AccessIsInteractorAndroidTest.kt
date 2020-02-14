@@ -6,7 +6,6 @@ import fr.coppernic.sdk.power.impl.cone.ConePeripheral
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class AccessIsInteractorAndroidTest {
@@ -32,7 +31,6 @@ class AccessIsInteractorAndroidTest {
     // Read a passport or ID card to make this test succeed
     @Test
     fun listen() {
-        Timber.d("listen")
         val observer = interactor.listen().test()
         observer.awaitTerminalEvent(10, TimeUnit.SECONDS)
         observer.assertNoErrors()

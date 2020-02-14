@@ -50,6 +50,7 @@ dependencies {
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'com.arcao:slf4j-timber:3.1'
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
@@ -59,9 +60,7 @@ dependencies {
     implementation 'fr.coppernic.sdk.core:CpcCore:1.9.0'
     implementation 'fr.coppernic.sdk.ocr:CpcOcr:3.0.0'
 
-    // Timber
-    implementation ('com.jakewharton.timber:timber:4.7.1') {
-        exclude group:'org.jetbrains'
-    }
+    //logging
+    implementation "org.slf4j:slf4j-api:1.7.25"
 
 }

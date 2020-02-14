@@ -1,6 +1,7 @@
 package fr.coppernic.lib.interactors.accessis.ocr
 
 import android.content.Context
+import fr.coppernic.lib.interactors.log.InteractorsDefines.LOG
 import fr.coppernic.sdk.core.Defines.SerialDefines.OCR_READER_BAUDRATE_CONE
 import fr.coppernic.sdk.core.Defines.SerialDefines.OCR_READER_PORT_CONE
 import fr.coppernic.sdk.ocr.MrzReader
@@ -9,7 +10,6 @@ import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.Disposable
-import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 
 class AccessIsInteractor(val context: Context) {
@@ -41,7 +41,7 @@ class AccessIsInteractor(val context: Context) {
     }
 
     private fun setEmitter(e: ObservableEmitter<String>) {
-        Timber.d(e.toString())
+        LOG.debug(e.toString())
 
         // End previous observer and start new one
         emitter?.apply {
@@ -55,7 +55,7 @@ class AccessIsInteractor(val context: Context) {
                 private val disposed = AtomicBoolean(false)
 
                 override fun dispose() {
-                    Timber.d("dispose")
+                    LOG.debug("dispose")
                     disposed.set(true)
                     mrzReader?.close()
                 }
@@ -70,16 +70,16 @@ class AccessIsInteractor(val context: Context) {
     private val mrzListener = object : MrzReader.Listener {
         override fun onFirmware(firmware: String) {
             //Display Firmware version
-            Timber.d(firmware)
+            LOG.debug(firmware)
         }
 
         override fun onMenuData(menu: String) {
             //Display menu data
-            Timber.d(menu)
+            LOG.debug(menu)
         }
 
         override fun onMrz(mrz: String) {
-            Timber.d(mrz)
+            LOG.debug(mrz)
             emitter?.apply {
                 if(!isDisposed){
                     onNext(mrz)
