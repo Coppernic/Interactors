@@ -1,4 +1,4 @@
-package fr.coppernic.lib.interactors.log;
+package fr.coppernic.lib.interactors.ocr;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

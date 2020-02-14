@@ -1,8 +1,7 @@
-package fr.coppernic.lib.interactors.accessis.ocr
+package fr.coppernic.lib.interactors.ocr
 
 import android.content.Context
-import fr.coppernic.lib.interactors.log.InteractorsDefines
-import fr.coppernic.lib.interactors.log.InteractorsDefines.LOG
+import fr.coppernic.lib.interactors.ocr.InteractorsDefines.LOG
 import fr.coppernic.sdk.core.Defines.SerialDefines.OCR_READER_BAUDRATE_CONE
 import fr.coppernic.sdk.core.Defines.SerialDefines.OCR_READER_PORT_CONE
 import fr.coppernic.sdk.ocr.MrzReader

@@ -2,6 +2,7 @@ package fr.coppernic.lib.interactors.accessis.ocr
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import fr.coppernic.lib.interactors.ocr.AccessIsInteractor
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral
 import org.junit.After
 import org.junit.Before
