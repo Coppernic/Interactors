@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fr.coppernic.lib.interactors.mrtd">
+
+    <application android:name="androidx.multidex.MultiDexApplication">
+        <activity
+            android:name="fr.coppernic.lib.interactors.mrtd.TestActivity"
+            android:theme="@style/AppTheme" />
+    </application>
+
+</manifest>
