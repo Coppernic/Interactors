@@ -12,7 +12,9 @@ import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.atomic.AtomicBoolean
 
-class AccessIsInteractor(private val context: Context) {
+class AccessIsInteractor(private val context: Context,
+                         private val port: String = OCR_READER_PORT_CONE,
+                         private val baudrate: Int = OCR_READER_BAUDRATE_CONE) {
     private var emitter: ObservableEmitter<String>? = null
     private var mrzReader: MrzReader? = null
 
@@ -20,8 +22,8 @@ class AccessIsInteractor(private val context: Context) {
         setEmitter(e)
         MrzReader.Builder.get()
                 .setListener(mrzListener)
-                .withPort(OCR_READER_PORT_CONE)
-                .withBaudrate(OCR_READER_BAUDRATE_CONE)
+                .withPort(port)
+                .withBaudrate(baudrate)
                 .build(context, instanceListener)
     }
 
