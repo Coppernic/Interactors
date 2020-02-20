@@ -13,7 +13,7 @@ import io.reactivex.disposables.Disposable
 import java.security.cert.X509Certificate
 import java.util.concurrent.atomic.AtomicBoolean
 
-class MrtdInteractor() {
+class MrtdInteractor {
     private var status: Status = Status.IDLE
     private var emitter: SingleEmitter<DataGroup>? = null
     private var mrz: String = ""
@@ -144,7 +144,7 @@ class MrtdInteractor() {
             if (p0 == CpcResult.RESULT.OK) {
                 document.performBac(key)
             } else {
-                onError(MrtdInteractorException("onDocumentConnected error: $p0"))
+                onError(MrtdInteractorException("onDocumentConnected, result $p0, isPaceSupported $p1"))
             }
         }
 
@@ -206,6 +206,9 @@ class MrtdInteractor() {
                key: String,
                options: Options = Options()): Single<DataGroup> {
         return if (status != Status.IDLE) {
+            if (InteractorsDefines.verbose) {
+                LOG.trace("Status is not idle : {}", status)
+            }
             Single.error(MrtdInteractorException("Busy"))
         } else {
             status = Status.DG1
@@ -213,6 +216,9 @@ class MrtdInteractor() {
             this.key = key
             this.options = options
             Single.create(singleOnSubscribe).doFinally {
+                if (InteractorsDefines.verbose) {
+                    LOG.trace("Reset status")
+                }
                 // Reset status here
                 status = Status.IDLE
             }
@@ -241,7 +247,7 @@ class MrtdInteractor() {
         // End previous observer and start new one
         emitter?.apply {
             if (!isDisposed) {
-                // FIXME disconnect ?
+                close()
             }
         }
         emitter = e.apply {
@@ -253,7 +259,7 @@ class MrtdInteractor() {
                         LOG.trace("dispose")
                     }
                     disposed.set(true)
-                    // FIXME disconnect ?
+                    close()
                 }
 
                 override fun isDisposed(): Boolean {
@@ -261,6 +267,13 @@ class MrtdInteractor() {
                 }
             })
         }
+    }
+
+    private fun close() {
+        document.stopConnect()
+        document.stopBac()
+        document.stopRead()
+        document.disconnect()
     }
 
     data class Options(val readerType: ReaderType = ReaderType.CONE_PCSC_RFID, val timeout: Long = 30000)

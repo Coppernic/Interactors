@@ -1,5 +1,6 @@
 package fr.coppernic.lib.interactors.mrtd
 
+import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import fr.coppernic.sdk.passport.lds.Mrz
@@ -65,5 +66,36 @@ class MrtdInteractorAndroidTest {
         val mrz = Mrz(MRZ_MORPHO)
         val dataGroup = interactor.listen(activityRule.activity, mrz.key).blockingGet()
         Timber.d("$dataGroup")
+    }
+
+    @Test
+    fun busy() {
+        val mrz = Mrz(MRZ_BENIN)
+        val obs1 = interactor.listen(activityRule.activity, mrz.key, MrtdInteractor.Options(timeout = 5000)).test()
+        val obs2 = interactor.listen(activityRule.activity, mrz.key, MrtdInteractor.Options(timeout = 5000)).test()
+        obs1.awaitTerminalEvent()
+        obs2.awaitTerminalEvent()
+        obs2.assertError(MrtdInteractorException::class.java)
+        obs1.assertError(MrtdInteractorException::class.java)
+        obs2.assertErrorMessage("Busy")
+        obs1.assertErrorMessage("onBacEnded error: CCID_INVALID_ANSWER")
+    }
+
+    @Test
+    fun dispose() {
+        val mrz = Mrz(MRZ_SECURITY_SYSTEM)
+        val obs1 = interactor.listen(activityRule.activity, mrz.key, MrtdInteractor.Options(timeout = 5000)).test()
+        SystemClock.sleep(1000)
+        obs1.dispose()
+        obs1.assertNoErrors()
+
+        Timber.i("Listen an other device")
+
+        /*val obs2 = interactor.listen(activityRule.activity, mrz.key, MrtdInteractor.Options(timeout = 2000)).test()
+        obs2.awaitTerminalEvent()
+        obs2.assertError(MrtdInteractorException::class.java)
+        obs2.assertErrorMessage("onBacEnded error: CCID_INVALID_ANSWER")*/
+
+        SystemClock.sleep(2000)
     }
 }

@@ -21,6 +21,7 @@ project.subprojects {
     repositories {
         google()
         jcenter()
+        mavenLocal()
         maven { url 'https://artifactory.coppernic.fr/artifactory/libs-release' }
         maven { url "https://jitpack.io" }
     }
