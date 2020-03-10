@@ -34,10 +34,28 @@ dependencies {
 
 ## Presentation
 
-| Interactor | Version | Dependency | Documentation |
-| ---------- | ------- | ---------- | ------------- |
-| Barcode, Agrident, Picture | [![Download](https://api.bintray.com/packages/coppernic/maven/Interactors/images/download.svg) ] (https://bintray.com/coppernic/maven/Interactors/_latestVersion) | `implementation 'fr.coppernic.lib:interactors:0.3.1'` |  |
 
+**Interactors**
+
+- Barcode
+- Agrident
+- Picture
+
+**Version**
+
+- [![Download](https://api.bintray.com/packages/coppernic/maven/Interactors/images/download.svg)](https://bintray.com/coppernic/maven/Interactors/_latestVersion)
+
+**dependency**
+
+``` groovy
+dependencies {
+    implementation 'fr.coppernic.lib:interactors:0.3.1'
+}
+```
+
+**Documentation**
+
+- [Readme](https://github.com/Coppernic/Interactors/tree/doc/interactors)
 
 
 ## License
