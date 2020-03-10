@@ -34,16 +34,7 @@ dependencies {
 
 ## Presentation
 
-
-**Interactors**
-
-- Barcode
-- Agrident
-- Picture
-
-**Version**
-
-- [![Download](https://api.bintray.com/packages/coppernic/maven/Interactors/images/download.svg)](https://bintray.com/coppernic/maven/Interactors/_latestVersion)
+### Barcode, Agrident and Picture interactors
 
 **dependency**
 
@@ -56,6 +47,50 @@ dependencies {
 **Documentation**
 
 - [Readme](https://github.com/Coppernic/Interactors/tree/doc/interactors)
+
+### Barcode generator interactor
+
+**dependency**
+
+``` groovy
+dependencies {
+    implementation 'fr.coppernic.lib.interactors:barcodegenerator:0.3.1'
+}
+```
+
+**Documentation**
+
+- [Readme](https://github.com/Coppernic/Interactors/tree/doc/barcodegenerator)
+
+
+### MRTD Interactor
+
+**dependency**
+
+``` groovy
+dependencies {
+    implementation 'fr.coppernic.lib.interactors:mrtd:0.3.1'
+}
+```
+
+**Documentation**
+
+- [Readme](https://github.com/Coppernic/Interactors/tree/doc/mrtd)
+
+
+### OCR Interactor
+
+**dependency**
+
+``` groovy
+dependencies {
+    implementation 'fr.coppernic.lib.interactors:ocr:0.3.1'
+}
+```
+
+**Documentation**
+
+- [Readme](https://github.com/Coppernic/Interactors/tree/doc/ocr)
 
 
 ## License
