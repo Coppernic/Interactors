@@ -22,7 +22,7 @@ class IclassInteractorTest {
 
     @After
     fun tearDown() {
-        ConePeripheral.RFID_HID_ICLASSPROX_GPIO.off(context)
+        ConePeripheral.RFID_HID_ICLASSPROX_GPIO.descriptor.power(context, false).blockingGet()
     }
 
     @Test

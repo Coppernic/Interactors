@@ -1,16 +1,20 @@
+plugins {
+    id "com.jfrog.bintray" version "1.8.4"
+    id "fr.coppernic.versioning" version "3.1.2"
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
 
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode versioning.info.versionCode
+        versionName versioning.info.display
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
