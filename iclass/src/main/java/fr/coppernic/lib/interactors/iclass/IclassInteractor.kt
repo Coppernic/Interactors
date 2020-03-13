@@ -1,11 +1,11 @@
 package fr.coppernic.lib.interactors.iclass
 
 import android.content.Context
-import android.os.SystemClock
 import fr.coppernic.lib.interactors.iclass.InteractorsDefines.LOG
 import fr.coppernic.sdk.core.Defines
 import fr.coppernic.sdk.serial.SerialCom
 import fr.coppernic.sdk.serial.SerialFactory
+import fr.coppernic.sdk.serial.utils.SerialThreadListener
 import fr.coppernic.sdk.utils.core.CpcBytes
 import fr.coppernic.sdk.utils.io.InstanceListener
 import io.reactivex.Observable
@@ -18,16 +18,28 @@ class IclassInteractor(private val context: Context,
                        private val baudRate: Int = 9600) {
 
     private var emitter: ObservableEmitter<ByteArray>? = null
-    private var serial: SerialCom? = null
+    private var serial: SerialCom ?= null
+    private var serialThreadListener: SerialThreadListener ?= null
 
     private val instanceListener = object : InstanceListener<SerialCom> {
         override fun onDisposed(p0: SerialCom) {
+            LOG.debug("Serial com disposed")
         }
 
         override fun onCreated(s: SerialCom) {
             serial = s
-            serial?.open(Defines.SerialDefines.HID_ICLASS_PROX_READER_PORT, baudRate)
-            receiveCom()
+            s.open(port, baudRate)
+            serialThreadListener = SerialThreadListener(s){
+                if (it.size >= 4) {
+                        LOG.debug("Frame received ${CpcBytes.byteArrayToString(it)}")
+                        if (checkFrame(it)) {
+                            onNext(it)
+                        } else {
+                            onError(Exception("Length or CRC16 error"))
+                        }
+                }
+            }
+            serialThreadListener?.start()
         }
     }
 
@@ -35,35 +47,6 @@ class IclassInteractor(private val context: Context,
         return Observable.create { e ->
             setEmitter(e)
             SerialFactory.getInstance(context, SerialCom.Type.DIRECT, instanceListener)
-        }
-    }
-
-    private fun receiveCom() {
-        while (!emitter?.isDisposed!!) {
-            // wait byte received
-            var bytesReceived = 0
-            serial?.flush()
-            while (bytesReceived == 0 && !emitter?.isDisposed!!) {
-                bytesReceived = serial?.queueStatus ?: return
-                SystemClock.sleep(10)
-            }
-
-            // We wait 20ms (10ms previous loop + 10ms here)
-            // to ensure that all the frame is available.
-            SystemClock.sleep(10)
-
-            bytesReceived = serial?.queueStatus ?: return
-            if (bytesReceived >= 4) {
-                val currentFrame = ByteArray(bytesReceived)
-                if (serial!!.receive(500, bytesReceived, currentFrame) > 0) {
-                    LOG.debug("Frame received ${CpcBytes.byteArrayToString(currentFrame)}")
-                    if (checkFrame(currentFrame)) {
-                        onNext(currentFrame)
-                    } else {
-                        onError(Exception("Length or CRC16 error"))
-                    }
-                }
-            }
         }
     }
 
@@ -90,6 +73,7 @@ class IclassInteractor(private val context: Context,
         emitter?.apply {
             if (!isDisposed) {
                 onComplete()
+                serialThreadListener?.stop()
                 serial?.close()
             }
         }
@@ -102,6 +86,7 @@ class IclassInteractor(private val context: Context,
                         LOG.trace("dispose")
                     }
                     disposed.set(true)
+                    serialThreadListener?.stop()
                     serial?.close()
                 }
 
@@ -123,6 +108,6 @@ class IclassInteractor(private val context: Context,
         val dataWithoutCrc16 = data.dropLast(2).toByteArray()
         val crc16 = data.copyOfRange(data.size - 2, data.size)
         val iCrc16 = CrcUtils.computeCRC(dataWithoutCrc16)
-        return (crc16[1] == iCrc16.toByte() && /*data.dropLast(1).last()*/ crc16[0] == (iCrc16 shr 8).toByte())
+        return (crc16[1] == iCrc16.toByte() && crc16[0] == (iCrc16 shr 8).toByte())
     }
 }
