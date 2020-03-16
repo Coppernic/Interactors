@@ -2,6 +2,7 @@ package fr.coppernic.lib.interactors.iclass
 
 import android.content.Context
 import fr.coppernic.lib.interactors.iclass.InteractorsDefines.LOG
+import fr.coppernic.lib.interactors.iclass.InteractorsDefines.verbose
 import fr.coppernic.sdk.core.Defines
 import fr.coppernic.sdk.serial.SerialCom
 import fr.coppernic.sdk.serial.SerialFactory
@@ -32,7 +33,9 @@ class IclassInteractor(private val context: Context,
             s.flush()
             serialThreadListener = SerialThreadListener(s) {
                 if (it.size >= 4) {
-                    LOG.debug("Frame received ${CpcBytes.byteArrayToString(it)}")
+                    if(verbose) {
+                        LOG.debug("Frame received ${CpcBytes.byteArrayToString(it)}")
+                    }
                     if (checkFrame(it)) {
                         onNext(it)
                     } else {
