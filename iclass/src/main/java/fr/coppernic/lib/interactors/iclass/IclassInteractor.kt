@@ -18,8 +18,8 @@ class IclassInteractor(private val context: Context,
                        private val baudRate: Int = 9600) {
 
     private var emitter: ObservableEmitter<ByteArray>? = null
-    private var serial: SerialCom ?= null
-    private var serialThreadListener: SerialThreadListener ?= null
+    private var serial: SerialCom? = null
+    private var serialThreadListener: SerialThreadListener? = null
 
     private val instanceListener = object : InstanceListener<SerialCom> {
         override fun onDisposed(p0: SerialCom) {
@@ -29,14 +29,15 @@ class IclassInteractor(private val context: Context,
         override fun onCreated(s: SerialCom) {
             serial = s
             s.open(port, baudRate)
-            serialThreadListener = SerialThreadListener(s){
+            s.flush()
+            serialThreadListener = SerialThreadListener(s) {
                 if (it.size >= 4) {
-                        LOG.debug("Frame received ${CpcBytes.byteArrayToString(it)}")
-                        if (checkFrame(it)) {
-                            onNext(it)
-                        } else {
-                            onError(Exception("Length or CRC16 error"))
-                        }
+                    LOG.debug("Frame received ${CpcBytes.byteArrayToString(it)}")
+                    if (checkFrame(it)) {
+                        onNext(it)
+                    } else {
+                        onError(IclassInteractorException("Length or CRC16 error"))
+                    }
                 }
             }
             serialThreadListener?.start()
@@ -73,10 +74,12 @@ class IclassInteractor(private val context: Context,
         emitter?.apply {
             if (!isDisposed) {
                 onComplete()
-                serialThreadListener?.stop()
-                serial?.close()
             }
         }
+
+        serialThreadListener?.stop()
+        serial?.close()
+
         emitter = e.apply {
             setDisposable(object : Disposable {
                 private val disposed = AtomicBoolean(false)

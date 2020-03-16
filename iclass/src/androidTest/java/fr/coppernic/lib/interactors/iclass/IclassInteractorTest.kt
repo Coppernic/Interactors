@@ -28,7 +28,16 @@ class IclassInteractorTest {
     @Test
     fun listen() {
         val testObserver = interactor.listen().test()
-        testObserver.awaitCount(1 ) //Timeout after 5 seconds
+        testObserver.awaitCount(1) //Timeout after 5 seconds
         testObserver.assertValueCount(1)
+    }
+
+    @Test
+    fun severalListen() {
+        val testObserver = interactor.listen().test()
+        val testObserver2 = interactor.listen().test()
+        testObserver2.awaitCount(1) //Timeout after 5 seconds
+        testObserver2.assertValueCount(1)
+        testObserver.assertValueCount(0)
     }
 }
