@@ -99,7 +99,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:iclass:0.3.2'
+    implementation 'fr.coppernic.lib.interactors:iclass:0.3.3'
 }
 ```
 
