@@ -46,7 +46,7 @@ dependencies {
 
 **Documentation**
 
-- [Readme](https://github.com/Coppernic/Interactors/tree/doc/interactors)
+- [Readme](https://github.com/Coppernic/Interactors/tree/master/interactors)
 
 ### Barcode generator interactor
 
@@ -60,7 +60,7 @@ dependencies {
 
 **Documentation**
 
-- [Readme](https://github.com/Coppernic/Interactors/tree/doc/barcodegenerator)
+- [Readme](https://github.com/Coppernic/Interactors/tree/master/barcodegenerator)
 
 
 ### MRTD Interactor
@@ -75,7 +75,7 @@ dependencies {
 
 **Documentation**
 
-- [Readme](https://github.com/Coppernic/Interactors/tree/doc/mrtd)
+- [Readme](https://github.com/Coppernic/Interactors/tree/master/mrtd)
 
 
 ### OCR Interactor
@@ -90,7 +90,7 @@ dependencies {
 
 **Documentation**
 
-- [Readme](https://github.com/Coppernic/Interactors/tree/doc/ocr)
+- [Readme](https://github.com/Coppernic/Interactors/tree/master/ocr)
 
 
 ### ICLASS Interactor
@@ -105,7 +105,7 @@ dependencies {
 
 **Documentation**
 
-- [Readme](https://github.com/Coppernic/Interactors/tree/doc/iclass)
+- [Readme](https://github.com/Coppernic/Interactors/tree/master/iclass)
 
 
 ## License
