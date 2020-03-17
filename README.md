@@ -28,7 +28,7 @@ Each interactor dependency will be like this one :
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib:interactors:0.3.1'
+    implementation 'fr.coppernic.lib:interactors:0.3.2'
 }
 ```
 
@@ -40,7 +40,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib:interactors:0.3.1'
+    implementation 'fr.coppernic.lib:interactors:0.3.2'
 }
 ```
 
@@ -54,7 +54,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:barcodegenerator:0.3.1'
+    implementation 'fr.coppernic.lib.interactors:barcodegenerator:0.3.2'
 }
 ```
 
@@ -69,7 +69,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:mrtd:0.3.1'
+    implementation 'fr.coppernic.lib.interactors:mrtd:0.3.2'
 }
 ```
 
@@ -84,13 +84,28 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:ocr:0.3.1'
+    implementation 'fr.coppernic.lib.interactors:ocr:0.3.2'
 }
 ```
 
 **Documentation**
 
 - [Readme](https://github.com/Coppernic/Interactors/tree/doc/ocr)
+
+
+### ICLASS Interactor
+
+**dependency**
+
+``` groovy
+dependencies {
+    implementation 'fr.coppernic.lib.interactors:iclass:0.3.2'
+}
+```
+
+**Documentation**
+
+- [Readme](https://github.com/Coppernic/Interactors/tree/doc/iclass)
 
 
 ## License
