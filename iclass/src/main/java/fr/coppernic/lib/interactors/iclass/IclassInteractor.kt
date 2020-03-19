@@ -12,6 +12,8 @@ import fr.coppernic.sdk.utils.io.InstanceListener
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.disposables.Disposable
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicBoolean
 
 class IclassInteractor(private val context: Context,
@@ -32,6 +34,7 @@ class IclassInteractor(private val context: Context,
             s.open(port, baudRate)
             s.flush()
             serialThreadListener = SerialThreadListener(s) {
+                LOG.debug("frame received ${CpcBytes.byteArrayToString(it)}")
                 if (it.size >= 4) {
                     if(verbose) {
                         LOG.debug("Frame received ${CpcBytes.byteArrayToString(it)}")
@@ -57,7 +60,9 @@ class IclassInteractor(private val context: Context,
     private fun onNext(data: ByteArray) {
         emitter?.apply {
             if (!isDisposed) {
-                onNext(data)
+                val pacs = getPACSData(data)
+                LOG.debug("PACS data : $pacs")
+                pacs?.let { onNext(it) }
             }
         }
     }
@@ -115,5 +120,33 @@ class IclassInteractor(private val context: Context,
         val crc16 = data.copyOfRange(data.size - 2, data.size)
         val iCrc16 = CrcUtils.computeCRC(dataWithoutCrc16)
         return (crc16[1] == iCrc16.toByte() && crc16[0] == (iCrc16 shr 8).toByte())
+    }
+
+    fun getPACSData(data: ByteArray) : ByteArray? {
+        //remove header and CRC16
+        val frame = data.copyOfRange(8,data.size - 2)
+        if (frame[0] == 0xBD.toByte()) {
+            val ced = frame.drop(6) // Remove PAYLOAD_RESPONSE TAG
+            val padding = ced[0].toInt()
+            val cedWithoutPadding = ced.drop(1).toByteArray()
+            if(cedWithoutPadding.size <= 4) { //Int
+                // shift right 6 to get pacs data
+                val c = CpcBytes.byteArrayToInt(cedWithoutPadding, true)
+                val iValue = ByteBuffer.wrap(cedWithoutPadding).int shr padding
+                return CpcBytes.intToByteArray(iValue, true)
+            } else if(ced.size in 5..8) { // Long
+                // shift right 6 to get pacs data
+                val lVal = CpcBytes.byteArrayToLong(cedWithoutPadding, true) shr padding
+                return longToByteArray(lVal, true)
+            }
+        }
+        return null
+    }
+
+    private fun longToByteArray(value: Long, bigEndian: Boolean): ByteArray? {
+        val b = ByteBuffer.allocate(8)
+        b.order(if (bigEndian) ByteOrder.BIG_ENDIAN else ByteOrder.LITTLE_ENDIAN)
+        b.putLong(value)
+        return b.array()
     }
 }

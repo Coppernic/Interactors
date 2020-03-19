@@ -46,6 +46,8 @@ dependencies {
     implementation 'fr.coppernic.sdk.core:CpcCore:1.9.0'
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.amshove.kluent:kluent:1.56'
+    testImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
