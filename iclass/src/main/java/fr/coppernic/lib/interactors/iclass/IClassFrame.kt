@@ -2,16 +2,13 @@ package fr.coppernic.lib.interactors.iclass
 
 import fr.coppernic.sdk.utils.core.CpcBytes
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
-class IclassFrameDecoder(val frame: ByteArray) {
+class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
     var type: Type? = null
     var cardNumber = 0L
     var facilityCode = -1
     var companyCode = -1
     val pacs = getPACSData(frame)
-
-
 
     private fun getPACSData(data: ByteArray): ByteArray? {
         //remove header and CRC16
@@ -36,26 +33,25 @@ class IclassFrameDecoder(val frame: ByteArray) {
                 // shift right  to get pacs data
                 val lVal = CpcBytes.byteArrayToLong(cedWithoutPadding, true) shr padding
                 if(cedWithoutPadding.size == 5) {
-                    // Wiegand 37 bit
-                    cardNumber = lVal shr 1 and 0x6FFFFFFFF //card number is 35bit
-                    //corporate 1000 35bit
-                    //cardNumber = lVal shr 1 and 0x0FFFFF //card number is 20bit
-                    // companyCode = (lVal shr 1 + 20 and 0x0FFF).toInt()
+                    if(padding == 3) {// Wiegand 37 bit
+                        if(withFacilityCode){//with facility code
+                            cardNumber = lVal shr 1 and 0x7FFFF //card number is 19bit
+                            facilityCode = (lVal shr 1 + 19 and 0x0000FFFF).toInt()
+                        }else {
+                            cardNumber = lVal shr 1 and 0x6FFFFFFFF //card number is 35bit
+                        }
+                    } else if(padding == 5) { //corporate 1000 35bit
+                        cardNumber = lVal shr 1 and 0x0FFFFF //card number is 20bit
+                        companyCode = (lVal shr 1 + 20 and 0x0FFF).toInt()
+                    }
                 } else if(cedWithoutPadding.size == 6){ //Corporate 1000 48bit
                     cardNumber = lVal shr 1 and 0x7FFFFF //card number is 23bit
                     companyCode = (lVal shr 1 + 23 and 0x3FFFFF).toInt()
                 }
-                return longToByteArray(lVal, true)?.drop(8 - pacsLength)?.toByteArray()
+                return CpcBytes.longToByteArray(lVal, true)?.drop(8 - pacsLength)?.toByteArray()
             }
         }
         return null
-    }
-
-    private fun longToByteArray(value: Long, bigEndian: Boolean): ByteArray? {
-        val b = ByteBuffer.allocate(8)
-        b.order(if (bigEndian) ByteOrder.BIG_ENDIAN else ByteOrder.LITTLE_ENDIAN)
-        b.putLong(value)
-        return b.array()
     }
 }
 
