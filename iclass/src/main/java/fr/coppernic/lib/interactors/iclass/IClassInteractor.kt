@@ -14,11 +14,11 @@ import io.reactivex.ObservableEmitter
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.atomic.AtomicBoolean
 
-class IclassInteractor(private val context: Context,
+class IClassInteractor(private val context: Context,
                        private val port: String = Defines.SerialDefines.HID_ICLASS_PROX_READER_PORT,
                        private val baudRate: Int = 9600) {
 
-    private var emitter: ObservableEmitter<ByteArray>? = null
+    private var emitter: ObservableEmitter<IClassFrame>? = null
     private var serial: SerialCom? = null
     private var serialThreadListener: SerialThreadListener? = null
 
@@ -29,34 +29,38 @@ class IclassInteractor(private val context: Context,
 
         override fun onCreated(s: SerialCom) {
             serial = s
-            s.open(port, baudRate)
+            if (s.open(port, baudRate) != SerialCom.ERROR_OK) {
+                onError(IclassInteractorException("Error opening serial port"))
+                return
+            }
             s.flush()
             serialThreadListener = SerialThreadListener(s) {
-                if (it.size >= 4) {
-                    if(verbose) {
-                        LOG.debug("Frame received ${CpcBytes.byteArrayToString(it)}")
-                    }
-                    if (checkFrame(it)) {
-                        onNext(it)
-                    } else {
-                        onError(IclassInteractorException("Length or CRC16 error"))
-                    }
+                if (verbose) {
+                    LOG.debug("frame received ${CpcBytes.byteArrayToString(it)}")
+                }
+                if (it.size >= 4 && checkFrame(it)) {
+                    onNext(IClassFrame(it))
+
+                } else {
+                    onError(IclassInteractorException("Length or CRC16 error"))
                 }
             }
             serialThreadListener?.start()
+
         }
     }
 
-    fun listen(): Observable<ByteArray> {
+    fun listen(): Observable<IClassFrame> {
         return Observable.create { e ->
             setEmitter(e)
             SerialFactory.getInstance(context, SerialCom.Type.DIRECT, instanceListener)
         }
     }
 
-    private fun onNext(data: ByteArray) {
+    private fun onNext(data: IClassFrame) {
         emitter?.apply {
             if (!isDisposed) {
+                LOG.debug("Frame data : ${data.frame}")
                 onNext(data)
             }
         }
@@ -70,7 +74,7 @@ class IclassInteractor(private val context: Context,
         }
     }
 
-    private fun setEmitter(e: ObservableEmitter<ByteArray>) {
+    private fun setEmitter(e: ObservableEmitter<IClassFrame>) {
         LOG.debug(e.toString())
 
         // End previous observer and start new one
@@ -88,7 +92,7 @@ class IclassInteractor(private val context: Context,
                 private val disposed = AtomicBoolean(false)
 
                 override fun dispose() {
-                    if (InteractorsDefines.verbose) {
+                    if (verbose) {
                         LOG.trace("dispose")
                     }
                     disposed.set(true)

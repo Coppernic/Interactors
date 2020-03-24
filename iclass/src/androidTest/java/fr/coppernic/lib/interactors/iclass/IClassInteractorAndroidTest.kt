@@ -7,17 +7,18 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-class IclassInteractorTest {
+class IClassInteractorAndroidTest {
 
-    private lateinit var interactor: IclassInteractor
+    private lateinit var interactor: IClassInteractor
     private lateinit var context: Context
 
     @Before
     fun setUp() {
+        InteractorsDefines.setVerbose(true)
         context = ApplicationProvider.getApplicationContext()
         // Powers on OCR reader
         ConePeripheral.RFID_HID_ICLASSPROX_GPIO.descriptor.power(context, true).blockingGet()
-        interactor = IclassInteractor(context)
+        interactor = IClassInteractor(context)
     }
 
     @After
