@@ -1,7 +1,6 @@
 package fr.coppernic.lib.interactors.iclass
 
 import android.content.Context
-import android.os.SystemClock
 import androidx.test.core.app.ApplicationProvider
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral
 import org.junit.After
@@ -30,7 +29,6 @@ class IClassInteractorAndroidTest {
     @Test
     fun listen() {
         val testObserver = interactor.listen().test()
-        SystemClock.sleep(10000)
         testObserver.awaitCount(1) //Timeout after 5 seconds
         testObserver.assertValueCount(1)
     }
