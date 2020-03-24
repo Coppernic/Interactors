@@ -29,25 +29,24 @@ class IClassInteractor(private val context: Context,
 
         override fun onCreated(s: SerialCom) {
             serial = s
-            if(s.open(port, baudRate) == SerialCom.ERROR_OK) {
-                s.flush()
-                serialThreadListener = SerialThreadListener(s) {
-                    LOG.debug("frame received ${CpcBytes.byteArrayToString(it)}")
-                    if (it.size >= 4) {
-                        if (verbose) {
-                            LOG.debug("Frame received ${CpcBytes.byteArrayToString(it)}")
-                        }
-                        if (checkFrame(it)) {
-                            onNext(IClassFrame(it))
-                        } else {
-                            onError(IclassInteractorException("Length or CRC16 error"))
-                        }
-                    }
-                }
-                serialThreadListener?.start()
-            } else {
+            if (s.open(port, baudRate) != SerialCom.ERROR_OK) {
                 onError(IclassInteractorException("Error opening serial port"))
+                return
             }
+            s.flush()
+            serialThreadListener = SerialThreadListener(s) {
+                if (verbose) {
+                    LOG.debug("frame received ${CpcBytes.byteArrayToString(it)}")
+                }
+                if (it.size >= 4 && checkFrame(it)) {
+                    onNext(IClassFrame(it))
+
+                } else {
+                    onError(IclassInteractorException("Length or CRC16 error"))
+                }
+            }
+            serialThreadListener?.start()
+
         }
     }
 

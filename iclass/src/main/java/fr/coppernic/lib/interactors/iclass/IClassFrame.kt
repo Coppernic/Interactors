@@ -24,6 +24,8 @@ private const val TYPE_INDEX = HEADER_LENGTH + 4
 private const val PACS_LENGTH_INDEX = HEADER_LENGTH + 5
 private const val PADDING_INDEX = HEADER_LENGTH + 6
 private const val RESPONSE_OK = 0xBD.toByte()
+private const val CRC16_LENGTH = 2
+private const val LENGTH_VALUE_LENGTH = 2
 
 class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
     var type = Type.Unknown
@@ -33,17 +35,17 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
     val pacs = getPACSData(frame)
 
     private fun getPACSData(frame: ByteArray): ByteArray {
-        if (frame.size > 2 && frame[FRAME_LENGTH_INDEX].toInt() == frame.size - 4
+        if (frame.size > LENGTH_VALUE_LENGTH && frame[FRAME_LENGTH_INDEX].toInt() == frame.size - CRC16_LENGTH - LENGTH_VALUE_LENGTH
                 && frame[HEADER_LENGTH] == RESPONSE_OK) {
             when (frame[TYPE_INDEX]) {
                 Type.HF.value -> type = Type.HF
                 Type.LF.value -> type = Type.LF
                 else -> Type.Unknown
             }
-            val pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1
+            val pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1 //without padding byte
             val padding = frame[PADDING_INDEX].toInt()
             //Remove Header, CRC16 and padding
-            val cedWithoutPadding = frame.copyOfRange(PADDING_INDEX + 1, frame.size - 2)
+            val cedWithoutPadding = frame.copyOfRange(PADDING_INDEX + 1, frame.size - CRC16_LENGTH)
             if (cedWithoutPadding.size <= 4) { //Int Wiegand 26
                 // shift right to get pacs data
                 val iValue = ByteBuffer.wrap(cedWithoutPadding).int shr padding
