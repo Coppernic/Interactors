@@ -28,7 +28,7 @@ Each interactor dependency will be like this one :
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib:interactors:0.3.2'
+    implementation 'fr.coppernic.lib.interactors:interactors:0.3.2'
 }
 ```
 
@@ -40,7 +40,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib:interactors:0.3.2'
+    implementation 'fr.coppernic.lib.interactors:interactors:0.3.2'
 }
 ```
 
