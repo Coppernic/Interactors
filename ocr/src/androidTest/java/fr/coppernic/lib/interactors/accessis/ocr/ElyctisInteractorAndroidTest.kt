@@ -1,16 +1,8 @@
 package fr.coppernic.lib.interactors.accessis.ocr
 
-import android.Manifest
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbDeviceConnection
-import android.hardware.usb.UsbManager
-import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
-import com.hoho.android.usbserial.driver.CdcAcmSerialDriver
 import fr.coppernic.lib.interactors.ocr.ElyctisInteractor
 import fr.coppernic.lib.interactors.ocr.InteractorsDefines
 import fr.coppernic.sdk.power.impl.idplatform.IdPlatformPeripheral
@@ -49,7 +41,7 @@ class ElyctisInteractorAndroidTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         // Powers on OCR reader
-        IdPlatformPeripheral.OCR.descriptor.power(context, true).delay(1, TimeUnit.SECONDS).blockingGet()
+        IdPlatformPeripheral.OCR.descriptor.power(context, true).blockingGet()
         interactor = ElyctisInteractor(context)
     }
 

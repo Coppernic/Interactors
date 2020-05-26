@@ -34,14 +34,14 @@ public class BarcodeInteractorTest extends RobolectricTest {
     private PackageManager pm;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(context.getPackageManager()).thenReturn(pm);
         when(pm.getInstalledPackages(PackageManager.GET_META_DATA)).thenReturn(Collections.<PackageInfo>emptyList());
         interactor = new BarcodeInteractor(context);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     @Test

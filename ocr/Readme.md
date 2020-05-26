@@ -1,14 +1,35 @@
 OCR
 ===
 
-**create interactor**
+## create interactor
+
+### C-One
 
 ```kotlin
 ConePeripheral.OCR_ACCESSIS_AI310E_USB.on(context)
 interactor = AccessIsInteractor(context)
 ```
 
-**use it**
+### ID-Platform
+
+> Please add CpcCore > 1.9.1 dependency for power management
+
+**build.gradle**
+
+```groovy
+dependencies {
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.9.1'
+}
+```
+
+**MyCLass.kt**
+
+```kotlin
+IdPlatformPeripheral.OCR.on(context)
+interactor = ElyctisInteractor(context)
+```
+
+## use it
 
 ```kotlin
 val disposable = interactor.listen().subscribe({ data ->
@@ -23,6 +44,6 @@ val disposable = interactor.listen().subscribe({ data ->
 disposable.dispose() 
 ```
 
-**disposing ressources**
+## disposing ressources
 
 Do not forget to dispose reader via `Disposable` object gotten from RxJava.
