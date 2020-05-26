@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class AccessIsInteractor(private val context: Context,
                          private val port: String = OCR_READER_PORT_CONE,
-                         private val baudrate: Int = OCR_READER_BAUDRATE_CONE) {
+                         private val baudrate: Int = OCR_READER_BAUDRATE_CONE) : OcrInteractor {
     private var emitter: ObservableEmitter<String>? = null
     private var mrzReader: MrzReader? = null
 
@@ -38,7 +38,7 @@ class AccessIsInteractor(private val context: Context,
     }
 
 
-    fun listen(): Observable<String> {
+    override fun listen(): Observable<String> {
         return Observable.create(observableOnSubscribe)
     }
 
