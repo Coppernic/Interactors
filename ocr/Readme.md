@@ -12,13 +12,13 @@ interactor = AccessIsInteractor(context)
 
 ### ID-Platform
 
-> Please add CpcCore > 1.9.1 dependency for power management
+> Please add CpcCore > 1.10 dependency for power management
 
 **build.gradle**
 
 ```groovy
 dependencies {
-    implementation 'fr.coppernic.sdk.core:CpcCore:1.9.1'
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.10.2'
 }
 ```
 
@@ -32,6 +32,7 @@ interactor = ElyctisInteractor(context)
 ## use it
 
 ```kotlin
+val interactor = OcrInteractorBuilder.build(context)
 val disposable = interactor.listen().subscribe({ data ->
     Timber.d(data)
 },{t ->
