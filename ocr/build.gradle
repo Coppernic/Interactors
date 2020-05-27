@@ -36,6 +36,7 @@ android {
 
 dependencies {
     implementation 'fr.coppernic.sdk.ocr:CpcOcr:3.0.0'
+    implementation 'fr.coppernic.external.elyctismrz:elyctismrz:1.0'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -47,20 +48,20 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.2.0'
 
     // Logging
-    implementation "org.slf4j:slf4j-api:1.7.25"
+    implementation "org.slf4j:slf4j-api:1.7.30"
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
 
     // Coppernic
-    implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.0'
-    implementation 'fr.coppernic.sdk.core:CpcCore:1.9.0'
+    implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.1'
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.10.2'
 
     // Dagger
     //noinspection GradleDependency
     compileOnly 'com.google.dagger:dagger:2.16'
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13'
     testImplementation 'org.hamcrest:hamcrest:2.2'
     //noinspection GradleDependency
     testImplementation 'org.awaitility:awaitility:3.0.0'

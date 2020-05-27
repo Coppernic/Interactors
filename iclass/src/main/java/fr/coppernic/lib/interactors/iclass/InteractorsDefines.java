@@ -11,7 +11,7 @@ public final class InteractorsDefines {
     }
 
     // Log
-    public static final String TAG = "Interactors";
+    public static final String TAG = "IClassInteractors";
     public static final Logger LOG = LoggerFactory.getLogger(TAG);
 
     /**

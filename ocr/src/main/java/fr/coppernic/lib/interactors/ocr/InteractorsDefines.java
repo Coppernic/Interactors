@@ -10,7 +10,7 @@ public final class InteractorsDefines {
     }
 
     // Log
-    public static final String TAG = "Interactors";
+    public static final String TAG = "OcrInteractors";
     public static final Logger LOG = LoggerFactory.getLogger(TAG);
 
     /**
