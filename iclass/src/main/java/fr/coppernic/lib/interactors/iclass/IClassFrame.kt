@@ -11,12 +11,14 @@ private const val CARD_NUMBER_37_BIT_WITH_FC_LENGTH = 19
 private const val CARD_NUMBER_CORP_1000_48_BIT_LENGTH = 23
 private const val CARD_NUMBER_CORP_1000_35_BIT_LENGTH = 20
 
+private const val MASK_8_BIT = 0xFF
 private const val MASK_12_BIT = 0xFFFL
 private const val MASK_16_BIT = 0xFFFF
 private const val MASK_19_BIT = 0x7FFFFL
 private const val MASK_20_BIT = 0xFFFFFL
 private const val MASK_22_BIT = 0x3FFFFFL
 private const val MASK_23_BIT = 0x7FFFFFL
+private const val MASK_26_BIT = 0x3FFFFFF
 private const val MASK_35_BIT = 0x6FFFFFFFFL
 
 private const val FRAME_LENGTH_INDEX = 1
@@ -50,8 +52,8 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                 // shift right to get pacs data
                 val iValue = ByteBuffer.wrap(cedWithoutPadding).int shr padding
                 cardNumber = (iValue shr 1 and MASK_16_BIT).toLong()
-                facilityCode = iValue shr 1 + CARD_NUMBER_WIEGAND_26BIT_LENGTH and MASK_16_BIT
-                return CpcBytes.intToByteArray(iValue, true)
+                facilityCode = (iValue shr 1 + CARD_NUMBER_WIEGAND_26BIT_LENGTH and MASK_8_BIT)
+                return CpcBytes.intToByteArray(iValue and MASK_26_BIT, true)
             } else if (cedWithoutPadding.size in 5..8) { // Long
                 // shift right  to get pacs data
                 val lVal = CpcBytes.byteArrayToLong(cedWithoutPadding, true) shr padding

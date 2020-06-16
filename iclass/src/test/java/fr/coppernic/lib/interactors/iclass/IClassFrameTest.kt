@@ -8,6 +8,9 @@ class IClassFrameTest {
     private val frameHfTest26bit = IClassFrame(byteArrayOf(0x00, 0x11, 0x0A, 0x44, 0x00,
             0x00, 0x00, 0x00, 0xBD.toByte(), 0x09, 0x9E.toByte(), 0x07, 0x81.toByte(), 0x05, 0x06,
             0x3D, 0x80.toByte(), 0x05, 0x80.toByte(), 0xB4.toByte(), 0x98.toByte()))
+    private val frameHfTest26bit2 = IClassFrame(byteArrayOf(0x00, 0x11, 0x0A, 0x44, 0x00,
+            0x00, 0x00, 0x00, 0xBD.toByte(), 0x09, 0x9E.toByte(), 0x07, 0x81.toByte(), 0x05, 0x06,
+            0x80.toByte(), 0x80.toByte(), 0x08, 0xC0.toByte(), 0xDB.toByte(), 0x80.toByte()))
     private val frameHfTest37bit = IClassFrame(byteArrayOf(0x00, 0x12, 0x0A, 0x44, 0x00,
             0x00, 0x00, 0x00, 0xBD.toByte(), 0x0A, 0x9E.toByte(), 0x08, 0x81.toByte(), 0x06, 0x03,
             0x00, 0x03, 0xD0.toByte(), 0x8F.toByte(), 0xE0.toByte(), 0xFD.toByte(), 0xE8.toByte()))
@@ -34,45 +37,51 @@ class IClassFrameTest {
 
     @Test
     fun getPacs() {
-        frameHfTest26bit.pacs?.toTypedArray() `should equal` byteArrayOf(0x00, 0xF6.toByte(), 0x00,
+        frameHfTest26bit.pacs.toTypedArray() `should equal` byteArrayOf(0x00, 0xF6.toByte(), 0x00,
                 0x16).toTypedArray()
         frameHfTest26bit.type `should equal` Type.HF
         frameHfTest26bit.cardNumber `should equal` 11
         frameHfTest26bit.facilityCode `should equal` 123
 
-        frameHfTest37bit.pacs?.toTypedArray() `should equal` byteArrayOf(0x00, 0x00, 0x7A, 0x11,
+        frameHfTest26bit2.pacs.toTypedArray() `should equal` byteArrayOf(0x02, 0x02, 0x00,
+                0x23).toTypedArray()
+        frameHfTest26bit2.type `should equal` Type.HF
+        frameHfTest26bit2.cardNumber `should equal` 17
+        frameHfTest26bit2.facilityCode `should equal` 1
+
+        frameHfTest37bit.pacs.toTypedArray() `should equal` byteArrayOf(0x00, 0x00, 0x7A, 0x11,
                 0xFC.toByte()).toTypedArray()
         frameHfTest37bit.type `should equal` Type.HF
         frameHfTest37bit.cardNumber `should equal` 3999998
 
-        frameHfTest37bitWFC.pacs?.toTypedArray() `should equal` byteArrayOf( 0x10, 0x31, 0x50, 0x01,
+        frameHfTest37bitWFC.pacs.toTypedArray() `should equal` byteArrayOf( 0x10, 0x31, 0x50, 0x01,
                 0x78).toTypedArray()
         frameHfTest37bitWFC.cardNumber `should equal` 188
         frameHfTest37bitWFC.facilityCode `should equal` 789
 
-        frameHfTest48bit.pacs?.toTypedArray() `should equal` byteArrayOf(0x80.toByte(), 0x0F,
+        frameHfTest48bit.pacs.toTypedArray() `should equal` byteArrayOf(0x80.toByte(), 0x0F,
                 0xFF.toByte(), 0x03, 0x44, 0x9F.toByte()).toTypedArray()
         frameHfTest48bit.type `should equal` Type.HF
         frameHfTest48bit.cardNumber `should equal` 107087
         frameHfTest48bit.companyCode `should equal` 4095
 
-        frameHfTest35bit.pacs?.toTypedArray() `should equal` byteArrayOf(0x01, 0x33, 0x80.toByte(),
+        frameHfTest35bit.pacs.toTypedArray() `should equal` byteArrayOf(0x01, 0x33, 0x80.toByte(),
                 0x0B, 0xC6.toByte()).toTypedArray()
         frameHfTest35bit.cardNumber `should equal` 1507
         frameHfTest35bit.companyCode `should equal` 2460 //2496?
 
-        frameLfTest26bit.pacs?.toTypedArray() `should equal` byteArrayOf(0x00, 0xF6.toByte(), 0x00,
+        frameLfTest26bit.pacs.toTypedArray() `should equal` byteArrayOf(0x00, 0xF6.toByte(), 0x00,
                 0x29).toTypedArray()
         frameLfTest26bit.type `should equal` Type.LF
         frameLfTest26bit.cardNumber `should equal` 20
         frameLfTest26bit.facilityCode `should equal` 123
 
-        frameLfTest37bit.pacs?.toTypedArray() `should equal` byteArrayOf(0x00, 0x00,0x89.toByte(),
+        frameLfTest37bit.pacs.toTypedArray() `should equal` byteArrayOf(0x00, 0x00,0x89.toByte(),
                 0x54, 0x3B).toTypedArray()
         frameLfTest37bit.type `should equal` Type.LF
         frameLfTest37bit.cardNumber `should equal` 4499997
 
-        frameLfTest48bit.pacs?.toTypedArray() `should equal` byteArrayOf(0xC0.toByte(), 0x0F,
+        frameLfTest48bit.pacs.toTypedArray() `should equal` byteArrayOf(0xC0.toByte(), 0x0F,
                 0xFF.toByte(), 0x03, 0x44, 0xA2.toByte()).toTypedArray()
         frameLfTest48bit.type `should equal` Type.LF
         frameLfTest48bit.cardNumber `should equal` 107089
