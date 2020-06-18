@@ -2,6 +2,7 @@ package fr.coppernic.lib.interactors.iclass
 
 import fr.coppernic.sdk.utils.core.CpcBytes
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 private const val PADDING_COPORATE_1000_35_BIT = 5
 private const val PADDING_WIEGAND_37 = 3
@@ -50,10 +51,13 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
             val cedWithoutPadding = frame.copyOfRange(PADDING_INDEX + 1, frame.size - CRC16_LENGTH)
             if (cedWithoutPadding.size <= 4) { //Int Wiegand 26
                 // shift right to get pacs data
-                val iValue = ByteBuffer.wrap(cedWithoutPadding).int shr padding
+                var iValue = ByteBuffer.wrap(cedWithoutPadding).int shr padding
                 cardNumber = (iValue shr 1 and MASK_16_BIT).toLong()
                 facilityCode = (iValue shr 1 + CARD_NUMBER_WIEGAND_26BIT_LENGTH and MASK_8_BIT)
-                return CpcBytes.intToByteArray(iValue and MASK_26_BIT, true)
+                if(iValue < 0){
+                    iValue = iValue and MASK_26_BIT
+                }
+                return CpcBytes.intToByteArray(iValue, true)
             } else if (cedWithoutPadding.size in 5..8) { // Long
                 // shift right  to get pacs data
                 val lVal = CpcBytes.byteArrayToLong(cedWithoutPadding, true) shr padding

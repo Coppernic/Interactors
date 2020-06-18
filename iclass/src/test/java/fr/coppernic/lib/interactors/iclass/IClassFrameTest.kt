@@ -11,6 +11,9 @@ class IClassFrameTest {
     private val frameHfTest26bit2 = IClassFrame(byteArrayOf(0x00, 0x11, 0x0A, 0x44, 0x00,
             0x00, 0x00, 0x00, 0xBD.toByte(), 0x09, 0x9E.toByte(), 0x07, 0x81.toByte(), 0x05, 0x06,
             0x80.toByte(), 0x80.toByte(), 0x08, 0xC0.toByte(), 0xDB.toByte(), 0x80.toByte()))
+    private val frameHfTest26bit3 = IClassFrame(byteArrayOf(0x00, 0x11, 0x0A, 0x44, 0x00,
+            0x00, 0x00, 0x00, 0xBD.toByte(), 0x09, 0x9E.toByte(), 0x07, 0x81.toByte(), 0x05, 0x00,
+            0x3A, 0xA5.toByte(), 0x18, 0x04, 0x4E, 0x29))
     private val frameHfTest37bit = IClassFrame(byteArrayOf(0x00, 0x12, 0x0A, 0x44, 0x00,
             0x00, 0x00, 0x00, 0xBD.toByte(), 0x0A, 0x9E.toByte(), 0x08, 0x81.toByte(), 0x06, 0x03,
             0x00, 0x03, 0xD0.toByte(), 0x8F.toByte(), 0xE0.toByte(), 0xFD.toByte(), 0xE8.toByte()))
@@ -48,6 +51,12 @@ class IClassFrameTest {
         frameHfTest26bit2.type `should equal` Type.HF
         frameHfTest26bit2.cardNumber `should equal` 17
         frameHfTest26bit2.facilityCode `should equal` 1
+
+        frameHfTest26bit3.pacs.toTypedArray() `should equal` byteArrayOf(0x3A, 0xA5.toByte(), 0x18,
+                0x04).toTypedArray()
+        frameHfTest26bit3.type `should equal` Type.HF
+        frameHfTest26bit3.cardNumber `should equal` 35842
+        frameHfTest26bit3.facilityCode `should equal` 82
 
         frameHfTest37bit.pacs.toTypedArray() `should equal` byteArrayOf(0x00, 0x00, 0x7A, 0x11,
                 0xFC.toByte()).toTypedArray()
