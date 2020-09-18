@@ -1,4 +1,4 @@
-package fr.coppernic.lib.interactors.barcode.generator
+package fr.coppernic.lib.interactors.barcode.zxing
 
 import android.graphics.Bitmap
 import com.google.zxing.BarcodeFormat

@@ -1,4 +1,4 @@
-package fr.coppernic.lib.interactors.barcode.generator
+package fr.coppernic.lib.interactors.barcode.zxing
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.zxing.BarcodeFormat
