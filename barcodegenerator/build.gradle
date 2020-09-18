@@ -52,6 +52,9 @@ dependencies {
     implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.0'
     implementation 'fr.coppernic.sdk.core:CpcCore:1.9.0'
 
+    //Zxing
+    implementation 'com.google.zxing:core:3.4.0'
+
     // Dagger
     //noinspection GradleDependency
     compileOnly 'com.google.dagger:dagger:2.16'
