@@ -3,7 +3,11 @@ package fr.coppernic.lib.interactors.barcode.zxing
 import android.app.Activity
 import android.content.Intent
 import com.google.zxing.integration.android.IntentIntegrator
+import fr.coppernic.lib.utils.rx.error
+import fr.coppernic.lib.utils.rx.success
 import io.reactivex.*
+
+private const val NOT_FOUND = "Result not found"
 
 class BarcodeZxingInteractor {
 
@@ -25,9 +29,9 @@ class BarcodeZxingInteractor {
         if (result != null) {
             //if qrcode has nothing in it
             if (result.contents == null) {
-                emitter?.onError(Throwable("Result not found"))
+                emitter?.error(Throwable(NOT_FOUND))
             } else {
-                emitter?.onSuccess(result.contents)
+                emitter?.success(result.contents)
             }
         }
     }

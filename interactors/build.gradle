@@ -75,8 +75,8 @@ dependencies {
     // Jet pack
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.core:core-ktx:1.3.1'
 
     // Logging
     implementation "org.slf4j:slf4j-api:1.7.25"
@@ -85,8 +85,10 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
 
     // Coppernic
-    implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.0'
-    implementation 'fr.coppernic.sdk.core:CpcCore:1.9.0'
+    implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.1'
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.11.2'
+    implementation 'fr.coppernic.lib.android-utils:rx:0.0.9'
+
 
     // Dagger
     //noinspection GradleDependency
