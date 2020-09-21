@@ -3,6 +3,7 @@ package fr.coppernic.lib.interactors.barcode.zxing
 import android.app.Activity
 import android.content.Intent
 import com.google.zxing.integration.android.IntentIntegrator
+import fr.coppernic.lib.interactors.barcode.zxing.exceptions.BarcodeZxingException
 import fr.coppernic.lib.utils.rx.error
 import fr.coppernic.lib.utils.rx.success
 import io.reactivex.*
@@ -29,7 +30,7 @@ class BarcodeZxingInteractor {
         if (result != null) {
             //if qrcode has nothing in it
             if (result.contents == null) {
-                emitter?.error(Throwable(NOT_FOUND))
+                emitter?.error(BarcodeZxingException(NOT_FOUND))
             } else {
                 emitter?.success(result.contents)
             }
