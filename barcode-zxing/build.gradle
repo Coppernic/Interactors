@@ -47,7 +47,7 @@ dependencies {
     // Coppernic
     implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.1'
     implementation 'fr.coppernic.sdk.core:CpcCore:1.11.2'
-    implementation 'fr.coppernic.lib.android-utils:rx:0.0.9'
+    implementation 'fr.coppernic.lib.android-utils:rx:0.0.10'
 
     //ZXING
     implementation 'com.journeyapps:zxing-android-embedded:3.4.0'//do not upgrade, use minsdk 24
