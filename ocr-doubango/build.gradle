@@ -1,0 +1,112 @@
+plugins {
+    id "com.jfrog.bintray" version "1.8.4"
+    id "fr.coppernic.versioning" version "3.1.2"
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode versioning.info.versionCode
+        versionName versioning.info.display
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
+        exclude 'META-INF/lib_release.kotlin_module'
+    }
+}
+
+dependencies {
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // Jet pack
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.core:core-ktx:1.3.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
+
+    implementation "androidx.navigation:navigation-fragment-ktx:2.3.0"
+    implementation "androidx.navigation:navigation-ui-ktx:2.3.0"
+
+    // Logging
+    implementation "org.slf4j:slf4j-api:1.7.30"
+
+    // RxJava
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
+    implementation 'fr.coppernic.lib.android-utils:rx:0.0.10'
+
+    // Coppernic
+    implementation 'fr.coppernic.lib.ocr.doubango:OcrDoubango:serializable'
+    // CameraX core library
+    //noinspection GradleDependency
+    implementation "androidx.camera:camera-core:1.0.0-beta08"
+    //noinspection GradleDependency
+    implementation "androidx.camera:camera-camera2:1.0.0-beta08"
+    //noinspection GradleDependency
+    implementation "androidx.camera:camera-lifecycle:1.0.0-beta08"
+    //noinspection GradleDependency
+    implementation 'androidx.camera:camera-view:1.0.0-alpha15'
+
+    // Dagger
+    //noinspection GradleDependency
+    compileOnly 'com.google.dagger:dagger:2.16'
+
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    //noinspection GradleDependency
+    testImplementation 'org.awaitility:awaitility:3.0.0'
+    testImplementation 'org.mockito:mockito-core:2.23.4'
+    testImplementation 'org.robolectric:robolectric:4.3.1'
+    testImplementation 'org.amshove.kluent:kluent:1.56'
+    testImplementation 'androidx.test:core:1.3.0'
+
+    // Timber
+    testImplementation ('com.jakewharton.timber:timber:4.7.1') {
+        exclude group:'org.jetbrains'
+    }
+    testImplementation 'fr.bipi.treessence:treessence:0.3.0'
+    testImplementation 'com.arcao:slf4j-timber:3.1'
+
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test:core:1.3.0'
+    androidTestImplementation 'androidx.test:rules:1.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'org.amshove.kluent:kluent-android:1.61'
+    //noinspection GradleDependency
+    androidTestImplementation 'androidx.multidex:multidex:2.0.0'
+
+    // Logs
+    androidTestImplementation 'com.arcao:slf4j-timber:3.1'
+    androidTestImplementation ('com.jakewharton.timber:timber:4.7.1') {
+        exclude group: 'org.jetbrains'
+    }
+    androidTestImplementation 'fr.bipi.treessence:treessence:0.3.0'
+}
+
+apply from: rootProject.file('gradle/gradle-publish.gradle')

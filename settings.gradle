@@ -17,4 +17,4 @@ include 'services:webservice'
 
 rootProject.name = 'Interactors'
 
-include ':interactors', ':barcode-zxing', ':ocr', ':mrtd', ':iclass'
+include ':interactors', ':barcode-zxing', ':ocr', ':ocr-doubango', ':mrtd', ':iclass'

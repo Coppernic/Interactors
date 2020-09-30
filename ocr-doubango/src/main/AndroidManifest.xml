@@ -1,0 +1,17 @@
+<manifest package="fr.coppernic.lib.interactors.ocr.doubango"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Declare features -->
+    <uses-feature android:name="android.hardware.camera" />
+
+    <!-- Declare permissions -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application>
+        <activity
+            android:name=".OcrCameraActivity"
+            android:clearTaskOnLaunch="true"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="fullUser"></activity>
+    </application>
+</manifest>
