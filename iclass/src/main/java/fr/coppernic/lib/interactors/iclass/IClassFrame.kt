@@ -2,7 +2,7 @@ package fr.coppernic.lib.interactors.iclass
 
 import fr.coppernic.sdk.utils.core.CpcBytes
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import kotlin.experimental.and
 
 private const val PADDING_COPORATE_1000_35_BIT = 5
 private const val PADDING_WIEGAND_37 = 3
@@ -36,6 +36,7 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
     var facilityCode = -1
     var companyCode = -1
     val pacs = getPACSData(frame)
+    val pacsBinaryString = pacs.toBinaryString()
 
     private fun getPACSData(frame: ByteArray): ByteArray {
         if (frame.size > LENGTH_VALUE_LENGTH && frame[FRAME_LENGTH_INDEX].toInt() == frame.size - CRC16_LENGTH - LENGTH_VALUE_LENGTH
@@ -89,4 +90,13 @@ enum class Type(val value: Byte) {
     HF(0x81.toByte()),
     LF(0x80.toByte()),
     Unknown(0x00)
+}
+
+fun ByteArray.toBinaryString(): String{
+    var s = "";
+    this.forEach {
+        val temp = String.format("%8s", Integer.toBinaryString((it and 0xFF.toByte()).toInt())).replace(' ', '0')
+        s += temp.substring(temp.length - 8)
+    }
+    return s;
 }
