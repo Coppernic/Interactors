@@ -19,7 +19,6 @@ private const val MASK_19_BIT = 0x7FFFFL
 private const val MASK_20_BIT = 0xFFFFFL
 private const val MASK_22_BIT = 0x3FFFFFL
 private const val MASK_23_BIT = 0x7FFFFFL
-private const val MASK_26_BIT = 0x3FFFFFF
 private const val MASK_35_BIT = 0x6FFFFFFFFL
 
 private const val FRAME_LENGTH_INDEX = 1
@@ -52,12 +51,9 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
             val cedWithoutPadding = frame.copyOfRange(PADDING_INDEX + 1, frame.size - CRC16_LENGTH)
             if (cedWithoutPadding.size <= 4) { //Int Wiegand 26
                 // shift right to get pacs data
-                var iValue = ByteBuffer.wrap(cedWithoutPadding).int shr padding
-                cardNumber = (iValue shr 1 and MASK_16_BIT).toLong()
-                facilityCode = (iValue shr 1 + CARD_NUMBER_WIEGAND_26BIT_LENGTH and MASK_8_BIT)
-                if(iValue < 0){
-                    iValue = iValue and MASK_26_BIT
-                }
+                val iValue = ByteBuffer.wrap(cedWithoutPadding).int ushr padding
+                cardNumber = (iValue ushr 1 and MASK_16_BIT).toLong()
+                facilityCode = (iValue ushr 1 + CARD_NUMBER_WIEGAND_26BIT_LENGTH and MASK_8_BIT)
                 return CpcBytes.intToByteArray(iValue, true)
             } else if (cedWithoutPadding.size in 5..8) { // Long
                 // shift right  to get pacs data
@@ -65,18 +61,18 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                 if (cedWithoutPadding.size == 5) {
                     if (padding == PADDING_WIEGAND_37) {// Wiegand 37 bit
                         if (withFacilityCode) {//with facility code
-                            cardNumber = lVal shr 1 and MASK_19_BIT //card number is 19bit
-                            facilityCode = (lVal shr 1 + CARD_NUMBER_37_BIT_WITH_FC_LENGTH and MASK_16_BIT.toLong()).toInt()
+                            cardNumber = lVal ushr 1 and MASK_19_BIT //card number is 19bit
+                            facilityCode = (lVal ushr 1 + CARD_NUMBER_37_BIT_WITH_FC_LENGTH and MASK_16_BIT.toLong()).toInt()
                         } else {
-                            cardNumber = lVal shr 1 and MASK_35_BIT //card number is 35bit
+                            cardNumber = lVal ushr 1 and MASK_35_BIT //card number is 35bit
                         }
                     } else if (padding == PADDING_COPORATE_1000_35_BIT) { //corporate 1000 35bit
-                        cardNumber = lVal shr 1 and MASK_20_BIT //card number is 20bit
-                        companyCode = (lVal shr 1 + CARD_NUMBER_CORP_1000_35_BIT_LENGTH and MASK_12_BIT).toInt()
+                        cardNumber = lVal ushr 1 and MASK_20_BIT //card number is 20bit
+                        companyCode = (lVal ushr 1 + CARD_NUMBER_CORP_1000_35_BIT_LENGTH and MASK_12_BIT).toInt()
                     }
                 } else if (cedWithoutPadding.size == 6) { //Corporate 1000 48bit
-                    cardNumber = lVal shr 1 and MASK_23_BIT //card number is 23bit
-                    companyCode = (lVal shr 1 + CARD_NUMBER_CORP_1000_48_BIT_LENGTH and MASK_22_BIT).toInt()
+                    cardNumber = lVal ushr 1 and MASK_23_BIT //card number is 23bit
+                    companyCode = (lVal ushr 1 + CARD_NUMBER_CORP_1000_48_BIT_LENGTH and MASK_22_BIT).toInt()
                 }
                 return CpcBytes.longToByteArray(lVal, true)?.drop(8 - pacsLength)?.toByteArray()
                         ?: byteArrayOf()

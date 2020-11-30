@@ -4,7 +4,9 @@ import org.amshove.kluent.`should equal`
 import org.junit.Test
 
 class IClassFrameTest {
-
+    private val frameMifareTest = IClassFrame(byteArrayOf(0x00, 0x11, 0x0A, 0x44, 0x00,
+            0x00, 0x00, 0x00, 0xBD.toByte(),0x09, 0x9E.toByte(), 0x07, 0x81.toByte(), 0x05, 0x00,
+            0x83.toByte(), 0x83.toByte(), 0x9D.toByte(), 0x66, 0x33, 0xD6.toByte()))
     private val frameHfTest26bit = IClassFrame(byteArrayOf(0x00, 0x11, 0x0A, 0x44, 0x00,
             0x00, 0x00, 0x00, 0xBD.toByte(), 0x09, 0x9E.toByte(), 0x07, 0x81.toByte(), 0x05, 0x06,
             0x3D, 0x80.toByte(), 0x05, 0x80.toByte(), 0xB4.toByte(), 0x98.toByte()))
@@ -105,5 +107,10 @@ class IClassFrameTest {
         frameLfTest48bit.type `should equal` Type.LF
         frameLfTest48bit.cardNumber `should equal` 107089
         frameLfTest48bit.companyCode `should equal` 4095
+
+        frameMifareTest.pacs.toTypedArray() `should equal` byteArrayOf( 0x83.toByte(), 0x83.toByte(),
+                0x9D.toByte(), 0x66).toTypedArray()
+        frameMifareTest.pacsBinaryString `should equal` "10000011100000111001110101100110"
+        frameMifareTest.type `should equal` Type.HF
     }
 }
