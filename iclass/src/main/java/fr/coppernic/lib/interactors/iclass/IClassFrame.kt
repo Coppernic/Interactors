@@ -36,6 +36,7 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
     var companyCode = -1
     val pacs = getPACSData(frame)
     val pacsBinaryString = pacs.toBinaryString()
+    var pacsLength: Int = 0
 
     private fun getPACSData(frame: ByteArray): ByteArray {
         if (frame.size > LENGTH_VALUE_LENGTH && frame[FRAME_LENGTH_INDEX].toInt() == frame.size - CRC16_LENGTH - LENGTH_VALUE_LENGTH
@@ -45,7 +46,8 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                 Type.LF.value -> type = Type.LF
                 else -> Type.Unknown
             }
-            val pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1 //without padding byte
+            pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1 //without padding byte
+
             val padding = frame[PADDING_INDEX].toInt()
             //Remove Header, CRC16 and padding
             val cedWithoutPadding = frame.copyOfRange(PADDING_INDEX + 1, frame.size - CRC16_LENGTH)
@@ -89,10 +91,10 @@ enum class Type(val value: Byte) {
 }
 
 fun ByteArray.toBinaryString(): String{
-    var s = "";
+    var s = ""
     this.forEach {
         val temp = String.format("%8s", Integer.toBinaryString((it and 0xFF.toByte()).toInt())).replace(' ', '0')
         s += temp.substring(temp.length - 8)
     }
-    return s;
+    return s
 }
