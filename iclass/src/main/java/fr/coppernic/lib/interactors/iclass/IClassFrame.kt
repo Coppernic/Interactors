@@ -36,7 +36,7 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
     var companyCode = -1
     val pacs = getPACSData(frame)
     val pacsBinaryString = pacs.toBinaryString()
-    var pacsLength: Int = 0
+    var bitLength: Int = 0
 
     private fun getPACSData(frame: ByteArray): ByteArray {
         if (frame.size > LENGTH_VALUE_LENGTH && frame[FRAME_LENGTH_INDEX].toInt() == frame.size - CRC16_LENGTH - LENGTH_VALUE_LENGTH
@@ -46,7 +46,7 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                 Type.LF.value -> type = Type.LF
                 else -> Type.Unknown
             }
-            pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1 //without padding byte
+            val pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1 //without padding byte
 
             val padding = frame[PADDING_INDEX].toInt()
             //Remove Header, CRC16 and padding
@@ -56,12 +56,14 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                 val iValue = ByteBuffer.wrap(cedWithoutPadding).int ushr padding
                 cardNumber = (iValue ushr 1 and MASK_16_BIT).toLong()
                 facilityCode = (iValue ushr 1 + CARD_NUMBER_WIEGAND_26BIT_LENGTH and MASK_8_BIT)
+                bitLength = 26
                 return CpcBytes.intToByteArray(iValue, true)
             } else if (cedWithoutPadding.size in 5..8) { // Long
                 // shift right  to get pacs data
                 val lVal = CpcBytes.byteArrayToLong(cedWithoutPadding, true) shr padding
                 if (cedWithoutPadding.size == 5) {
                     if (padding == PADDING_WIEGAND_37) {// Wiegand 37 bit
+                        bitLength = 37
                         if (withFacilityCode) {//with facility code
                             cardNumber = lVal ushr 1 and MASK_19_BIT //card number is 19bit
                             facilityCode = (lVal ushr 1 + CARD_NUMBER_37_BIT_WITH_FC_LENGTH and MASK_16_BIT.toLong()).toInt()
@@ -69,10 +71,12 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                             cardNumber = lVal ushr 1 and MASK_35_BIT //card number is 35bit
                         }
                     } else if (padding == PADDING_COPORATE_1000_35_BIT) { //corporate 1000 35bit
+                        bitLength = 35
                         cardNumber = lVal ushr 1 and MASK_20_BIT //card number is 20bit
                         companyCode = (lVal ushr 1 + CARD_NUMBER_CORP_1000_35_BIT_LENGTH and MASK_12_BIT).toInt()
                     }
                 } else if (cedWithoutPadding.size == 6) { //Corporate 1000 48bit
+                    bitLength = 48
                     cardNumber = lVal ushr 1 and MASK_23_BIT //card number is 23bit
                     companyCode = (lVal ushr 1 + CARD_NUMBER_CORP_1000_48_BIT_LENGTH and MASK_22_BIT).toInt()
                 }
