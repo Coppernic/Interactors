@@ -49,6 +49,7 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
             val pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1 //without padding byte
 
             val padding = frame[PADDING_INDEX].toInt()
+            bitLength = (pacsLength * 8) - padding
             //Remove Header, CRC16 and padding
             val cedWithoutPadding = frame.copyOfRange(PADDING_INDEX + 1, frame.size - CRC16_LENGTH)
             if (cedWithoutPadding.size <= 4) { //Int Wiegand 26
@@ -56,14 +57,12 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                 val iValue = ByteBuffer.wrap(cedWithoutPadding).int ushr padding
                 cardNumber = (iValue ushr 1 and MASK_16_BIT).toLong()
                 facilityCode = (iValue ushr 1 + CARD_NUMBER_WIEGAND_26BIT_LENGTH and MASK_8_BIT)
-                bitLength = 26
                 return CpcBytes.intToByteArray(iValue, true)
             } else if (cedWithoutPadding.size in 5..8) { // Long
                 // shift right  to get pacs data
                 val lVal = CpcBytes.byteArrayToLong(cedWithoutPadding, true) shr padding
                 if (cedWithoutPadding.size == 5) {
                     if (padding == PADDING_WIEGAND_37) {// Wiegand 37 bit
-                        bitLength = 37
                         if (withFacilityCode) {//with facility code
                             cardNumber = lVal ushr 1 and MASK_19_BIT //card number is 19bit
                             facilityCode = (lVal ushr 1 + CARD_NUMBER_37_BIT_WITH_FC_LENGTH and MASK_16_BIT.toLong()).toInt()
@@ -71,12 +70,10 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                             cardNumber = lVal ushr 1 and MASK_35_BIT //card number is 35bit
                         }
                     } else if (padding == PADDING_COPORATE_1000_35_BIT) { //corporate 1000 35bit
-                        bitLength = 35
                         cardNumber = lVal ushr 1 and MASK_20_BIT //card number is 20bit
                         companyCode = (lVal ushr 1 + CARD_NUMBER_CORP_1000_35_BIT_LENGTH and MASK_12_BIT).toInt()
                     }
                 } else if (cedWithoutPadding.size == 6) { //Corporate 1000 48bit
-                    bitLength = 48
                     cardNumber = lVal ushr 1 and MASK_23_BIT //card number is 23bit
                     companyCode = (lVal ushr 1 + CARD_NUMBER_CORP_1000_48_BIT_LENGTH and MASK_22_BIT).toInt()
                 }
