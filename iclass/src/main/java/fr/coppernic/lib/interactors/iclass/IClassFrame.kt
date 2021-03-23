@@ -36,7 +36,7 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
     var companyCode = -1
     val pacs = getPACSData(frame)
     val pacsBinaryString = pacs.toBinaryString()
-    var pacsLength: Int = 0
+    var bitLength: Int = 0
 
     private fun getPACSData(frame: ByteArray): ByteArray {
         if (frame.size > LENGTH_VALUE_LENGTH && frame[FRAME_LENGTH_INDEX].toInt() == frame.size - CRC16_LENGTH - LENGTH_VALUE_LENGTH
@@ -46,9 +46,10 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                 Type.LF.value -> type = Type.LF
                 else -> Type.Unknown
             }
-            pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1 //without padding byte
+            val pacsLength = frame[PACS_LENGTH_INDEX].toInt() - 1 //without padding byte
 
             val padding = frame[PADDING_INDEX].toInt()
+            bitLength = (pacsLength * 8) - padding
             //Remove Header, CRC16 and padding
             val cedWithoutPadding = frame.copyOfRange(PADDING_INDEX + 1, frame.size - CRC16_LENGTH)
             if (cedWithoutPadding.size <= 4) { //Int Wiegand 26
