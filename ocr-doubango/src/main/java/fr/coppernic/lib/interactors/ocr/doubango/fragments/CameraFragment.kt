@@ -197,7 +197,7 @@ class CameraFragment : Fragment() {
                             MrzAnalyser(
                                     (requireActivity() as OcrCameraActivity).reader,
                                     { ORIENTATIONS[viewFinder.display.rotation] },
-                                    { rawMrz -> Log.v(TAG, "$rawMrz") }
+                                    (requireActivity() as OcrCameraActivity)::onMrz
                             )
                     )
                 }
@@ -219,7 +219,7 @@ class CameraFragment : Fragment() {
     }
 
     /**
-     *  [androidx.camera.core.ImageAnalysisConfig] requires enum value of
+     *  ImageAnalysisConfig requires enum value of
      *  [androidx.camera.core.AspectRatio]. Currently it has values of 4:3 & 16:9.
      *
      *  Detecting the most suitable ratio for dimensions provided in @params by counting absolute
