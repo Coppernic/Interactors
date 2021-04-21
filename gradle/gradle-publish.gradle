@@ -112,37 +112,3 @@ publishing {
         }
     }
 }
-
-bintray {
-    user = project.hasProperty("bintray_user") ? project.bintray_user : ""
-    key = project.hasProperty("bintray_key") ? project.bintray_key : ""
-    // publish only if code is not dirty
-    publish = !project.versioning.info.dirty
-    pkg {
-        repo = BINTRAY_REPO
-        // We are using Root project because there are several artifacts but for the same project !
-        name = rootProject.name
-        userOrg = BINTRAY_ORG
-        licenses = ["Apache-2.0"]
-        labels = BINTRAY_LABELS.split(",")
-        vcsUrl = POM_SCM_URL
-        websiteUrl = POM_URL
-        issueTrackerUrl = POM_ISSUES_URL
-        githubRepo = GITHUB_REPO //Optional Github repository
-        githubReleaseNotesFile = GITHUB_README //Optional Github readme file
-        version {
-            name = v
-            desc = POM_DESCRIPTION
-            released = new Date()
-            vcsTag = t
-        }
-    }
-    publications = ['art']
-}
-
-// Add publications to bintray
-afterEvaluate {
-    bintray.publications = project.publishing.publications.collect {
-        it.name
-    }
-}

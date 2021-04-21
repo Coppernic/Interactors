@@ -1,5 +1,4 @@
 plugins {
-    id "com.jfrog.bintray" version "1.8.4"
     id "fr.coppernic.versioning" version "3.1.2"
 }
 
@@ -26,30 +25,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Logging
-    implementation "org.slf4j:slf4j-api:1.7.25"
+    implementation "org.slf4j:slf4j-api:1.7.30"
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
 
     // Coppernic
-    implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.1'
-    implementation 'fr.coppernic.sdk.core:CpcCore:1.9.0'
+    implementation 'fr.coppernic.sdk.core:CpcCore:2.0.2'
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.amshove.kluent:kluent:1.56'
-    testImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'org.amshove.kluent:kluent:1.65'
+    testImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
 
 apply from: rootProject.file('gradle/gradle-publish.gradle')
