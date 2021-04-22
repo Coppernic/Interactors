@@ -35,7 +35,7 @@ android {
 
 dependencies {
     implementation 'fr.coppernic.sdk.ocr:CpcOcr:3.0.1'
-    implementation 'fr.coppernic.external.elyctismrz:elyctismrz:1.0'
+    implementation 'fr.coppernic.external.elyctismrz:elyctismrz:1.0.1'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
