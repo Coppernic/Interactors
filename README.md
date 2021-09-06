@@ -18,8 +18,8 @@ general lib. Otherwise, it will have its own library with its specific dependenc
 
 ```groovy
 repositories {
-    maven { url 'https://dl.bintray.com/coppernic/maven/'}
-    maven { url 'https://artifactory.coppernic.fr/artifactory/libs-release'}
+    maven { url 'https://jitpack.io' }
+    maven { url "https://nexus.coppernic.fr/repository/libs-release" }
 }
 ```
 
@@ -28,7 +28,7 @@ Each interactor dependency will be like this one :
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:interactors:0.3.2'
+    implementation 'com.github.coppernic.Interactors:interactors:0.7.6'
 }
 ```
 
@@ -40,7 +40,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:interactors:0.3.2'
+    implementation 'com.github.coppernic.Interactors:interactors:0.7.6'
 }
 ```
 
@@ -54,7 +54,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:barcodegenerator:0.3.2'
+    implementation 'com.github.coppernic.Interactors:barcode-zxing:0.7.6'
 }
 ```
 
@@ -69,7 +69,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:mrtd:0.3.2'
+    implementation 'com.github.coppernic.Interactors:mrtd:0.7.6'
 }
 ```
 
@@ -84,7 +84,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:ocr:0.3.2'
+    implementation 'com.github.coppernic.Interactors:ocr:0.7.6'
 }
 ```
 
@@ -99,7 +99,7 @@ dependencies {
 
 ``` groovy
 dependencies {
-    implementation 'fr.coppernic.lib.interactors:iclass:0.3.3'
+    implementation 'com.github.coppernic.Interactors:iclass:0.7.6'
 }
 ```
 
