@@ -1,7 +1,7 @@
 package fr.coppernic.lib.interactors.ocr
 
 import android.content.Context
-import fr.coppernic.external.elyctismrz.MrzScanner
+import com.elyctis.idboxsdk.mrz.MrzScanner
 import fr.coppernic.lib.interactors.ocr.InteractorsDefines.LOG
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
