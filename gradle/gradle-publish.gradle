@@ -1,30 +1,33 @@
 apply plugin: 'maven-publish'
-apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: 'org.jetbrains.dokka'
 
 String v = "$project.versioning.info.display"
 String t = "$project.versioning.info.tag"
 
-dokka {
-    includes = ["${project.rootProject.projectDir}/Readme.md"]
-    jdkVersion = 7
-    outputFormat = 'html'
-    outputDirectory = "${project.buildDir}/javadoc"
 
-    linkMapping {
-        // Source directory
-        dir = "src/main/java"
+dokkaJavadoc.configure {
+    dokkaSourceSets {
+        configureEach {
+            includes.from("${project.rootProject.projectDir}/Readme.md")
+            jdkVersion = 8
 
-        // URL showing where the source code can be accessed through the web browser
-        url = GITHUB_SOURCE_URL
+            sourceLink {
+                // Source directory
+                localDirectory.set(file("src/main/java"))
 
-        // Suffix which is used to append the line number to the URL. Use #L for GitHub
-        suffix = "#L"
+                // URL showing where the source code can be accessed through the web browser
+                remoteUrl.set(java.net.URL(GITHUB_SOURCE_URL))
+
+                // Suffix which is used to append the line number to the URL. Use #L for GitHub
+                remoteLineSuffix = "#L"
+            }
+        }
     }
 }
 
-task androidJavadocsJar(type: Jar, dependsOn: "dokka") {
+task androidJavadocsJar(type: Jar, dependsOn: "dokkaJavadoc") {
     classifier = 'javadoc'
-    from dokka.outputDirectory
+    from dokkaJavadoc.outputDirectory
 }
 
 task androidSourcesJar(type: Jar) {
