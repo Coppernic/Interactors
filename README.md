@@ -1,4 +1,3 @@
-[![Download](https://api.bintray.com/packages/coppernic/maven/Interactors/images/download.svg) ](https://bintray.com/coppernic/maven/Interactors/_latestVersion)
 [![Build Status](https://travis-ci.org/Coppernic/Interactors.svg?branch=master)](https://travis-ci.org/Coppernic/Interactors)
 
 # Interactors

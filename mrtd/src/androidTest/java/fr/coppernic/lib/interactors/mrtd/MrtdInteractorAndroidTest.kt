@@ -37,7 +37,7 @@ class MrtdInteractorAndroidTest {
 
     @Before
     fun setUp() {
-        InteractorsDefines.setVerbose(true)
+        InteractorsMrtdDefines.setVerbose(true)
         interactor = MrtdInteractor()
 
         Timber.v("Powering up")

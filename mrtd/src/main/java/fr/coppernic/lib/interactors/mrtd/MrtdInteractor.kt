@@ -1,7 +1,7 @@
 package fr.coppernic.lib.interactors.mrtd
 
 import android.app.Activity
-import fr.coppernic.lib.interactors.mrtd.InteractorsDefines.LOG
+import fr.coppernic.lib.interactors.mrtd.InteractorsMrtdDefines.LOG
 import fr.coppernic.sdk.passport.Document
 import fr.coppernic.sdk.passport.DocumentInterface
 import fr.coppernic.sdk.passport.lds.IcaoFile
@@ -19,55 +19,55 @@ class MrtdInteractor {
     private var mrz: String = ""
     private val documentInterface: DocumentInterface = object : DocumentInterface {
         override fun onChipAuthenticationStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onChipAuthenticationStarted")
             }
         }
 
         override fun onPassiveAuthenticationEnded(p0: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onPassiveAuthenticationEnded {}", p0)
             }
         }
 
         override fun onPassiveAuthenticationOperationFinished(p0: DocumentInterface.PassiveAuthenticationOperations, p1: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onPassiveAuthenticationOperationFinished {} {}", p0, p1)
             }
         }
 
         override fun onSodInformationAvailable(p0: X509Certificate) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onSodInformationAvailable {}", p0)
             }
         }
 
         override fun onActiveAuthenticationProgress(p0: Int, p1: Int, p2: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onActiveAuthenticationProgress {} {} {}", p0, p1, p2)
             }
         }
 
         override fun onPassiveAuthenticationStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onPassiveAuthenticationStarted")
             }
         }
 
         override fun onActiveAuthenticationStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onActiveAuthenticationStarted")
             }
         }
 
         override fun onBacStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onBacStarted")
             }
         }
 
         override fun onFileRead(p0: IcaoFile.Files, p1: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onFileRead {}, {}", p0, p1)
             }
             if (p1 == CpcResult.RESULT.OK) {
@@ -108,37 +108,37 @@ class MrtdInteractor {
         }
 
         override fun onTerminalAuthenticationProgress(p0: Int, p1: Int, p2: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onTerminalAuthenticationProgress {}, {}, {}", p0, p1, p2)
             }
         }
 
         override fun onTerminalAuthenticationEnded(p0: CpcResult.RESULT, p1: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onTerminalAuthenticationEnded {}, {}", p0, p1)
             }
         }
 
         override fun onTerminalAuthenticationStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onTerminalAuthenticationStarted")
             }
         }
 
         override fun onChipAuthenticationProgress(p0: Int, p1: Int, p2: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onChipAuthenticationProgress {}, {}, {}", p0, p1, p2)
             }
         }
 
         override fun onStartReadingFile(p0: IcaoFile.Files) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onStartReadingFile {}", p0)
             }
         }
 
         override fun onDocumentConnected(p0: CpcResult.RESULT, p1: Boolean) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onDocumentConnected {}, {}", p0, p1)
             }
             if (p0 == CpcResult.RESULT.OK) {
@@ -149,13 +149,13 @@ class MrtdInteractor {
         }
 
         override fun onWaitingForDocument() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onWaitingForDocument")
             }
         }
 
         override fun onBacEnded(p0: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onBacEnded {}", p0)
             }
             if (p0 == CpcResult.RESULT.OK) {
@@ -166,25 +166,25 @@ class MrtdInteractor {
         }
 
         override fun onProgress(p0: Int, p1: Int) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onProgress {}, {}", p0, p1)
             }
         }
 
         override fun onChipAuthenticationEnded(p0: CpcResult.RESULT, p1: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onChipAuthenticationEnded {}, {}", p0, p1)
             }
         }
 
         override fun onActiveAuthenticationEnded(p0: CpcResult.RESULT, p1: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onActiveAuthenticationEnded {}, {}", p0, p1)
             }
         }
 
         override fun onReadFinished(p0: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onReadFinished {}", p0)
             }
         }
@@ -206,7 +206,7 @@ class MrtdInteractor {
                key: String,
                options: Options = Options()): Single<DataGroup> {
         return if (status != Status.IDLE) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("Status is not idle : {}", status)
             }
             Single.error(MrtdInteractorException("Busy"))
@@ -216,7 +216,7 @@ class MrtdInteractor {
             this.key = key
             this.options = options
             Single.create(singleOnSubscribe).doFinally {
-                if (InteractorsDefines.verbose) {
+                if (InteractorsMrtdDefines.verbose) {
                     LOG.trace("Reset status")
                 }
                 // Reset status here
@@ -255,8 +255,8 @@ class MrtdInteractor {
                 private val disposed = AtomicBoolean(false)
 
                 override fun dispose() {
-                    if (InteractorsDefines.verbose) {
-                        LOG.trace("dispose")
+                    if (InteractorsMrtdDefines.verbose) {
+                        LOG.trace("dispose and close")
                     }
                     disposed.set(true)
                     close()
@@ -270,10 +270,14 @@ class MrtdInteractor {
     }
 
     private fun close() {
-        document.stopConnect()
-        document.stopBac()
-        document.stopRead()
-        document.disconnect()
+        try {
+            document.stopConnect()
+            document.stopBac()
+            document.stopRead()
+            document.disconnect()
+        } catch (e: Exception) {
+            LOG.error("$e")
+        }
     }
 
     data class Options(val readerType: ReaderType = ReaderType.CONE_PCSC_RFID, val timeout: Long = 30000)

@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-public final class InteractorsDefines {
+public final class InteractorsMrtdDefines {
 
-    private InteractorsDefines() {
+    private InteractorsMrtdDefines() {
     }
 
     // Log

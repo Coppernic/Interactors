@@ -4,7 +4,7 @@ apply plugin: 'org.jetbrains.dokka'
 String v = "$project.versioning.info.display"
 String t = "$project.versioning.info.tag"
 
-
+/*
 dokkaJavadoc.configure {
     dokkaSourceSets {
         configureEach {
@@ -24,6 +24,7 @@ dokkaJavadoc.configure {
         }
     }
 }
+ */
 
 task androidJavadocsJar(type: Jar, dependsOn: "dokkaJavadoc") {
     classifier = 'javadoc'
