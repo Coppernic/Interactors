@@ -6,16 +6,16 @@ import fr.coppernic.sdk.passport.Document
 import fr.coppernic.sdk.passport.DocumentInterface
 import fr.coppernic.sdk.passport.lds.IcaoFile
 import fr.coppernic.sdk.utils.core.CpcResult
-import io.reactivex.Single
-import io.reactivex.SingleEmitter
-import io.reactivex.SingleOnSubscribe
+import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
+import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.Disposable
 import java.security.cert.X509Certificate
 import java.util.concurrent.atomic.AtomicBoolean
 
 class MrtdInteractor {
     private var status: Status = Status.IDLE
-    private var emitter: SingleEmitter<DataGroup>? = null
+    private var emitter: ObservableEmitter<MrtdInteractorState>? = null
     private var mrz: String = ""
     private val documentInterface: DocumentInterface = object : DocumentInterface {
         override fun onChipAuthenticationStarted() {
@@ -142,6 +142,7 @@ class MrtdInteractor {
                 LOG.trace("onDocumentConnected {}, {}", p0, p1)
             }
             if (p0 == CpcResult.RESULT.OK) {
+                onReadStarted()
                 document.performBac(key)
             } else {
                 onError(MrtdInteractorException("onDocumentConnected, result $p0, isPaceSupported $p1"))
@@ -195,7 +196,7 @@ class MrtdInteractor {
     private lateinit var options: Options
     private lateinit var document: Document
 
-    private val singleOnSubscribe = SingleOnSubscribe<DataGroup> { e ->
+    private val observableOnSubscribe = ObservableOnSubscribe<MrtdInteractorState> { e ->
         setEmitter(e)
         document = Document(activity, documentInterface, options.readerType.type)
         document.connect(options.timeout.toInt())
@@ -204,18 +205,18 @@ class MrtdInteractor {
     @Synchronized
     fun listen(activity: Activity,
                key: String,
-               options: Options = Options()): Single<DataGroup> {
+               options: Options = Options()): Observable<MrtdInteractorState> {
         return if (status != Status.IDLE) {
             if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("Status is not idle : {}", status)
             }
-            Single.error(MrtdInteractorException("Busy"))
+            Observable.error(MrtdInteractorException("Busy"))
         } else {
             status = Status.DG1
             this.activity = activity
             this.key = key
             this.options = options
-            Single.create(singleOnSubscribe).doFinally {
+            Observable.create(observableOnSubscribe).doFinally {
                 if (InteractorsMrtdDefines.verbose) {
                     LOG.trace("Reset status")
                 }
@@ -228,7 +229,16 @@ class MrtdInteractor {
     private fun onSuccess(dataGroup: DataGroup) {
         emitter?.apply {
             if (!isDisposed) {
-                onSuccess(dataGroup)
+                onNext(MrtdInteractorState.MrtdReadDone(dataGroup))
+                onComplete()
+            }
+        }
+    }
+
+    private fun onReadStarted() {
+        emitter?.apply {
+            if (!isDisposed) {
+                onNext(MrtdInteractorState.MrtdReadStarted)
             }
         }
     }
@@ -241,7 +251,7 @@ class MrtdInteractor {
         }
     }
 
-    private fun setEmitter(e: SingleEmitter<DataGroup>) {
+    private fun setEmitter(e: ObservableEmitter<MrtdInteractorState>) {
         LOG.debug(e.toString())
 
         // End previous observer and start new one
