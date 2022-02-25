@@ -29,7 +29,11 @@ private const val RESPONSE_OK = 0xBD.toByte()
 private const val CRC16_LENGTH = 2
 private const val LENGTH_VALUE_LENGTH = 2
 
-class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
+class IClassFrame(
+    val frame: ByteArray,
+    var withFacilityCode: Boolean = false,
+    var customMaskFilter: Long = 0
+) {
     var type = Type.Unknown
     var cardNumber = 0L
     var facilityCode = -1
@@ -40,7 +44,8 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
 
     private fun getPACSData(frame: ByteArray): ByteArray {
         if (frame.size > LENGTH_VALUE_LENGTH && frame[FRAME_LENGTH_INDEX].toInt() == frame.size - CRC16_LENGTH - LENGTH_VALUE_LENGTH
-                && frame[HEADER_LENGTH] == RESPONSE_OK) {
+            && frame[HEADER_LENGTH] == RESPONSE_OK
+        ) {
             when (frame[TYPE_INDEX]) {
                 Type.HF.value -> type = Type.HF
                 Type.LF.value -> type = Type.LF
@@ -64,24 +69,32 @@ class IClassFrame(val frame: ByteArray, var withFacilityCode: Boolean = false) {
                 if (cedWithoutPadding.size == 5) {
                     if (padding == PADDING_WIEGAND_37) {// Wiegand 37 bit
                         if (withFacilityCode) {//with facility code
-                            cardNumber = lVal ushr 1 and MASK_19_BIT //card number is 19bit
-                            facilityCode = (lVal ushr 1 + CARD_NUMBER_37_BIT_WITH_FC_LENGTH and MASK_16_BIT.toLong()).toInt()
+                            cardNumber = getCardNumber(lVal, MASK_19_BIT)//card number is 19bit
+                            facilityCode =
+                                (lVal ushr 1 + CARD_NUMBER_37_BIT_WITH_FC_LENGTH and MASK_16_BIT.toLong()).toInt()
                         } else {
-                            cardNumber = lVal ushr 1 and MASK_35_BIT //card number is 35bit
+                            cardNumber = getCardNumber(lVal, MASK_35_BIT)//card number is 35bit
                         }
                     } else if (padding == PADDING_COPORATE_1000_35_BIT) { //corporate 1000 35bit
-                        cardNumber = lVal ushr 1 and MASK_20_BIT //card number is 20bit
-                        companyCode = (lVal ushr 1 + CARD_NUMBER_CORP_1000_35_BIT_LENGTH and MASK_12_BIT).toInt()
+                        cardNumber = getCardNumber(lVal, MASK_20_BIT)//card number is 20bit
+                        companyCode =
+                            (lVal ushr 1 + CARD_NUMBER_CORP_1000_35_BIT_LENGTH and MASK_12_BIT).toInt()
                     }
                 } else if (cedWithoutPadding.size == 6) { //Corporate 1000 48bit
-                    cardNumber = lVal ushr 1 and MASK_23_BIT //card number is 23bit
-                    companyCode = (lVal ushr 1 + CARD_NUMBER_CORP_1000_48_BIT_LENGTH and MASK_22_BIT).toInt()
+                    cardNumber = getCardNumber(lVal, MASK_23_BIT)//card number is 23bit
+                    companyCode =
+                        (lVal ushr 1 + CARD_NUMBER_CORP_1000_48_BIT_LENGTH and MASK_22_BIT).toInt()
                 }
                 return CpcBytes.longToByteArray(lVal, true)?.drop(8 - pacsLength)?.toByteArray()
-                        ?: byteArrayOf()
+                    ?: byteArrayOf()
             }
         }
         return byteArrayOf()
+    }
+
+    private fun getCardNumber(value: Long, mask: Long): Long {
+        val finalMask = if (customMaskFilter == 0L) mask else customMaskFilter
+        return value ushr 1 and finalMask
     }
 }
 
@@ -91,10 +104,11 @@ enum class Type(val value: Byte) {
     Unknown(0x00)
 }
 
-fun ByteArray.toBinaryString(): String{
+fun ByteArray.toBinaryString(): String {
     var s = ""
     this.forEach {
-        val temp = String.format("%8s", Integer.toBinaryString((it and 0xFF.toByte()).toInt())).replace(' ', '0')
+        val temp = String.format("%8s", Integer.toBinaryString((it and 0xFF.toByte()).toInt()))
+            .replace(' ', '0')
         s += temp.substring(temp.length - 8)
     }
     return s
