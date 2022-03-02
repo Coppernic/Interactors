@@ -38,13 +38,13 @@ android {
 }
 
 dependencies {
-    implementation 'fr.coppernic.sdk.passport:CpcMrtd:1.3.9'
+    implementation 'fr.coppernic.sdk.passport:CpcMrtd:1.3.10'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Logging
-    implementation "org.slf4j:slf4j-api:1.7.30"
+    implementation "org.slf4j:slf4j-api:1.7.32"
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'

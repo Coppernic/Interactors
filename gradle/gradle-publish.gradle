@@ -1,10 +1,11 @@
 apply plugin: 'maven-publish'
 apply plugin: 'org.jetbrains.dokka'
+apply plugin: "nu.studer.credentials"
 
 String v = "$project.versioning.info.display"
 String t = "$project.versioning.info.tag"
 
-
+/*
 dokkaJavadoc.configure {
     dokkaSourceSets {
         configureEach {
@@ -24,6 +25,7 @@ dokkaJavadoc.configure {
         }
     }
 }
+ */
 
 task androidJavadocsJar(type: Jar, dependsOn: "dokkaJavadoc") {
     classifier = 'javadoc'
@@ -34,6 +36,23 @@ task androidSourcesJar(type: Jar) {
     classifier = 'sources'
     from android.sourceSets.main.java.sourceFiles
 }
+
+
+String userNexus = project.hasProperty('nexusUser') ?
+        project.nexusUser : (project.credentials.nexus_user ?
+        project.credentials.nexus_user : (project.properties.containsKey("nexus_user") ?
+        project.properties.nexus_user.toString() : (System.getenv('NEXUS_USER') ?
+        System.getenv('NEXUS_USER') : "")))
+String passwordNexus = project.hasProperty('nexusPassword') ?
+        project.nexusPassword : (project.credentials.nexus_password ?
+        project.credentials.nexus_password : (project.properties.containsKey("nexus_password") ?
+        project.properties.nexus_password.toString() : (System.getenv('NEXUS_PASSWORD') ?
+        System.getenv('NEXUS_PASSWORD') : "")))
+
+def isSnapshot() {
+    return versioning.info.display.contains("SNAPSHOT") || versioning.info.dirty
+}
+
 
 def pomConfig = {
     licenses {
@@ -111,6 +130,17 @@ publishing {
                         }
                     }
                 }
+            }
+        }
+    }
+    repositories {
+        maven {
+            String urlRelease = "https://nexus.coppernic.fr/repository/libs-release-coppernic/"
+            String urlSnapshot = "https://nexus.coppernic.fr/repository/libs-snapshot-coppernic/"
+            url = (isSnapshot() ? urlSnapshot : urlRelease)
+            credentials {
+                username = userNexus
+                password = passwordNexus
             }
         }
     }

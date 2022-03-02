@@ -1,73 +1,73 @@
 package fr.coppernic.lib.interactors.mrtd
 
 import android.app.Activity
-import fr.coppernic.lib.interactors.mrtd.InteractorsDefines.LOG
+import fr.coppernic.lib.interactors.mrtd.InteractorsMrtdDefines.LOG
 import fr.coppernic.sdk.passport.Document
 import fr.coppernic.sdk.passport.DocumentInterface
 import fr.coppernic.sdk.passport.lds.IcaoFile
 import fr.coppernic.sdk.utils.core.CpcResult
-import io.reactivex.Single
-import io.reactivex.SingleEmitter
-import io.reactivex.SingleOnSubscribe
+import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
+import io.reactivex.ObservableOnSubscribe
 import io.reactivex.disposables.Disposable
 import java.security.cert.X509Certificate
 import java.util.concurrent.atomic.AtomicBoolean
 
 class MrtdInteractor {
     private var status: Status = Status.IDLE
-    private var emitter: SingleEmitter<DataGroup>? = null
+    private var emitter: ObservableEmitter<MrtdInteractorState>? = null
     private var mrz: String = ""
     private val documentInterface: DocumentInterface = object : DocumentInterface {
         override fun onChipAuthenticationStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onChipAuthenticationStarted")
             }
         }
 
         override fun onPassiveAuthenticationEnded(p0: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onPassiveAuthenticationEnded {}", p0)
             }
         }
 
         override fun onPassiveAuthenticationOperationFinished(p0: DocumentInterface.PassiveAuthenticationOperations, p1: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onPassiveAuthenticationOperationFinished {} {}", p0, p1)
             }
         }
 
         override fun onSodInformationAvailable(p0: X509Certificate) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onSodInformationAvailable {}", p0)
             }
         }
 
         override fun onActiveAuthenticationProgress(p0: Int, p1: Int, p2: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onActiveAuthenticationProgress {} {} {}", p0, p1, p2)
             }
         }
 
         override fun onPassiveAuthenticationStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onPassiveAuthenticationStarted")
             }
         }
 
         override fun onActiveAuthenticationStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onActiveAuthenticationStarted")
             }
         }
 
         override fun onBacStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onBacStarted")
             }
         }
 
         override fun onFileRead(p0: IcaoFile.Files, p1: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onFileRead {}, {}", p0, p1)
             }
             if (p1 == CpcResult.RESULT.OK) {
@@ -108,40 +108,41 @@ class MrtdInteractor {
         }
 
         override fun onTerminalAuthenticationProgress(p0: Int, p1: Int, p2: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onTerminalAuthenticationProgress {}, {}, {}", p0, p1, p2)
             }
         }
 
         override fun onTerminalAuthenticationEnded(p0: CpcResult.RESULT, p1: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onTerminalAuthenticationEnded {}, {}", p0, p1)
             }
         }
 
         override fun onTerminalAuthenticationStarted() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onTerminalAuthenticationStarted")
             }
         }
 
         override fun onChipAuthenticationProgress(p0: Int, p1: Int, p2: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onChipAuthenticationProgress {}, {}, {}", p0, p1, p2)
             }
         }
 
         override fun onStartReadingFile(p0: IcaoFile.Files) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onStartReadingFile {}", p0)
             }
         }
 
         override fun onDocumentConnected(p0: CpcResult.RESULT, p1: Boolean) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onDocumentConnected {}, {}", p0, p1)
             }
             if (p0 == CpcResult.RESULT.OK) {
+                onReadStarted()
                 document.performBac(key)
             } else {
                 onError(MrtdInteractorException("onDocumentConnected, result $p0, isPaceSupported $p1"))
@@ -149,13 +150,13 @@ class MrtdInteractor {
         }
 
         override fun onWaitingForDocument() {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onWaitingForDocument")
             }
         }
 
         override fun onBacEnded(p0: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onBacEnded {}", p0)
             }
             if (p0 == CpcResult.RESULT.OK) {
@@ -166,25 +167,25 @@ class MrtdInteractor {
         }
 
         override fun onProgress(p0: Int, p1: Int) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onProgress {}, {}", p0, p1)
             }
         }
 
         override fun onChipAuthenticationEnded(p0: CpcResult.RESULT, p1: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onChipAuthenticationEnded {}, {}", p0, p1)
             }
         }
 
         override fun onActiveAuthenticationEnded(p0: CpcResult.RESULT, p1: String) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onActiveAuthenticationEnded {}, {}", p0, p1)
             }
         }
 
         override fun onReadFinished(p0: CpcResult.RESULT) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("onReadFinished {}", p0)
             }
         }
@@ -195,7 +196,7 @@ class MrtdInteractor {
     private lateinit var options: Options
     private lateinit var document: Document
 
-    private val singleOnSubscribe = SingleOnSubscribe<DataGroup> { e ->
+    private val observableOnSubscribe = ObservableOnSubscribe<MrtdInteractorState> { e ->
         setEmitter(e)
         document = Document(activity, documentInterface, options.readerType.type)
         document.connect(options.timeout.toInt())
@@ -204,19 +205,19 @@ class MrtdInteractor {
     @Synchronized
     fun listen(activity: Activity,
                key: String,
-               options: Options = Options()): Single<DataGroup> {
+               options: Options = Options()): Observable<MrtdInteractorState> {
         return if (status != Status.IDLE) {
-            if (InteractorsDefines.verbose) {
+            if (InteractorsMrtdDefines.verbose) {
                 LOG.trace("Status is not idle : {}", status)
             }
-            Single.error(MrtdInteractorException("Busy"))
+            Observable.error(MrtdInteractorException("Busy"))
         } else {
             status = Status.DG1
             this.activity = activity
             this.key = key
             this.options = options
-            Single.create(singleOnSubscribe).doFinally {
-                if (InteractorsDefines.verbose) {
+            Observable.create(observableOnSubscribe).doFinally {
+                if (InteractorsMrtdDefines.verbose) {
                     LOG.trace("Reset status")
                 }
                 // Reset status here
@@ -228,7 +229,16 @@ class MrtdInteractor {
     private fun onSuccess(dataGroup: DataGroup) {
         emitter?.apply {
             if (!isDisposed) {
-                onSuccess(dataGroup)
+                onNext(MrtdInteractorState.MrtdReadDone(dataGroup))
+                onComplete()
+            }
+        }
+    }
+
+    private fun onReadStarted() {
+        emitter?.apply {
+            if (!isDisposed) {
+                onNext(MrtdInteractorState.MrtdReadStarted)
             }
         }
     }
@@ -241,7 +251,7 @@ class MrtdInteractor {
         }
     }
 
-    private fun setEmitter(e: SingleEmitter<DataGroup>) {
+    private fun setEmitter(e: ObservableEmitter<MrtdInteractorState>) {
         LOG.debug(e.toString())
 
         // End previous observer and start new one
@@ -255,8 +265,8 @@ class MrtdInteractor {
                 private val disposed = AtomicBoolean(false)
 
                 override fun dispose() {
-                    if (InteractorsDefines.verbose) {
-                        LOG.trace("dispose")
+                    if (InteractorsMrtdDefines.verbose) {
+                        LOG.trace("dispose and close")
                     }
                     disposed.set(true)
                     close()
@@ -270,10 +280,14 @@ class MrtdInteractor {
     }
 
     private fun close() {
-        document.stopConnect()
-        document.stopBac()
-        document.stopRead()
-        document.disconnect()
+        try {
+            document.stopConnect()
+            document.stopBac()
+            document.stopRead()
+            document.disconnect()
+        } catch (e: Exception) {
+            LOG.error("$e")
+        }
     }
 
     data class Options(val readerType: ReaderType = ReaderType.CONE_PCSC_RFID, val timeout: Long = 30000)
