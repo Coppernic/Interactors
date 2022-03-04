@@ -5,6 +5,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import fr.coppernic.sdk.passport.lds.Mrz
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral
+import io.reactivex.observers.TestObserver
+import java.util.concurrent.TimeUnit
 import org.junit.*
 import timber.log.Timber
 
@@ -54,18 +56,31 @@ class MrtdInteractorAndroidTest {
         Timber.v("Powered down")
     }
 
+    private fun testMrtdGeneric(mrzStr: String) {
+        val mrz = Mrz(mrzStr)
+        val testObserver = TestObserver<MrtdInteractorState>()
+        interactor.listen(activityRule.activity, mrz.key)
+            .subscribe(testObserver)
+
+        testObserver.awaitTerminalEvent(10, TimeUnit.SECONDS)
+        testObserver.assertComplete()
+        testObserver.assertNoErrors()
+
+        val mrtdReadDoneList = testObserver.values().filter { it is MrtdInteractorState.MrtdReadDone }
+        assert(mrtdReadDoneList.isNotEmpty())
+        val mrtdReadDone = mrtdReadDoneList[0] as MrtdInteractorState.MrtdReadDone
+
+        Timber.d("mrtdReadDone.dataGroup=%s", mrtdReadDone.dataGroup.toString())
+    }
+
     @Test
     fun testGemalto() {
-        val mrz = Mrz(MRZ_GEMALTO)
-        val dataGroup = interactor.listen(activityRule.activity, mrz.key).blockingGet()
-        Timber.d("$dataGroup")
+        testMrtdGeneric(MRZ_GEMALTO)
     }
 
     @Test
     fun testMorpho() {
-        val mrz = Mrz(MRZ_MORPHO)
-        val dataGroup = interactor.listen(activityRule.activity, mrz.key).blockingGet()
-        Timber.d("$dataGroup")
+        testMrtdGeneric(MRZ_MORPHO)
     }
 
     @Test
