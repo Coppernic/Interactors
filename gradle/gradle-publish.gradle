@@ -77,8 +77,9 @@ def pomConfig = {
 publishing {
     publications {
         art(MavenPublication) {
-            groupId GROUP
-            artifactId "$project.name"
+            // add rootProject name to get Group ID: com.github.coppernic.Interactors as we get in jitpack
+            groupId "$GROUP.${rootProject.name}"
+            artifactId "${project.name}"
             version versioning.info.display
 
             android.libraryVariants.all { variant ->

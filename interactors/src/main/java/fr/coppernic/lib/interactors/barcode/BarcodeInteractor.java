@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -28,8 +29,8 @@ import static fr.coppernic.lib.interactors.common.InteractorsDefines.LOG;
 public class BarcodeInteractor implements ReaderInteractor<String> {
 
     private static final String TAG = "BarcodeInteractor";
-    private final Context context;
-    private ObservableEmitter<String> emitter;
+    private WeakReference<Context> contextRef;
+    private WeakReference<ObservableEmitter<String>> emitterRef;
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -48,7 +49,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     @SuppressWarnings("WeakerAccess")
     @Inject
     public BarcodeInteractor(Context context) {
-        this.context = context;
+        this.contextRef = new WeakReference<Context>(context);
         this.servicePackage = OsHelper.getSystemServicePackage(context);
     }
 
@@ -63,6 +64,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
      */
     @Override
     public void trig() {
+        Context context = contextRef.get();
         Intent scanIntent = new Intent();
         scanIntent.setPackage(servicePackage);
         scanIntent.setAction(Defines.IntentDefines.INTENT_ACTION_SCAN);
@@ -98,6 +100,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
 
     @Override
     public void stopService() {
+        Context context = contextRef.get();
         Intent scanIntent = new Intent();
         scanIntent.setPackage(servicePackage);
         scanIntent.setAction(Defines.IntentDefines.INTENT_ACTION_STOP_BARCODE_SERVICE);
@@ -113,6 +116,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
 
     @Override
     public void startService() {
+        Context context = contextRef.get();
         Intent scanIntent = new Intent();
         scanIntent.setPackage(servicePackage);
         scanIntent.setAction(Defines.IntentDefines.INTENT_ACTION_START_BARCODE_SERVICE);
@@ -129,11 +133,12 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     private void setEmitter(ObservableEmitter<String> e) {
         L.mt(TAG, DEBUG, e.toString());
         // End previous observer and start new one
-        if (emitter != null && !emitter.isDisposed()) {
-            emitter.onComplete();
+
+        if (emitterRef != null && !emitterRef.get().isDisposed()) {
+            emitterRef.get().onComplete();
         }
-        emitter = e;
-        emitter.setDisposable(new Disposable() {
+        emitterRef = new WeakReference<ObservableEmitter<String>>(e);
+        emitterRef.get().setDisposable(new Disposable() {
             private final AtomicBoolean disposed = new AtomicBoolean(false);
 
             @Override
@@ -151,6 +156,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     }
 
     private void registerReceiver() {
+        Context context = contextRef.get();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Defines.IntentDefines.ACTION_SCAN_SUCCESS);
         filter.addAction(Defines.IntentDefines.ACTION_SCAN_ERROR);
@@ -158,6 +164,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
     }
 
     private void unregisterReceiver() {
+        Context context = contextRef.get();
         try {
             context.unregisterReceiver(receiver);
         } catch (Exception e) {
@@ -167,6 +174,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
 
     private void handleError(Throwable t) {
         unregisterReceiver();
+        ObservableEmitter<String> emitter = emitterRef.get();
         if (emitter != null && !emitter.isDisposed()) {
             emitter.onError(t);
         }
@@ -178,7 +186,7 @@ public class BarcodeInteractor implements ReaderInteractor<String> {
             LOG.error("Action of {} is null", intent);
             return;
         }
-
+        ObservableEmitter<String> emitter = emitterRef.get();
         if (emitter == null || emitter.isDisposed()) {
             unregisterReceiver();
             return;
