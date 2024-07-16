@@ -45,7 +45,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
 
     // Coppernic
-    implementation 'fr.coppernic.sdk.core:CpcCore:2.0.5'
+    implementation "fr.coppernic.sdk.core:CpcCore:$cpc_core_version"
     implementation 'com.elyctis.idboxsdk:idboxsdk:1.12.08@aar'
 
     testImplementation 'junit:junit:4.13.1'
